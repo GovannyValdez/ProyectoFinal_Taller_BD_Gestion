@@ -96,7 +96,6 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         jLabel2.setText("Buscar por SSN");
 
         filtrarBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        filtrarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Escritorio\\icons8-buscar-48 (3).png")); // NOI18N
         filtrarBtn.setText("Buscar");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -115,7 +114,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                         .addComponent(filtrarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(29, 29, 29)
                         .addComponent(filtrarBtn)))
-                .addContainerGap(39, Short.MAX_VALUE))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
