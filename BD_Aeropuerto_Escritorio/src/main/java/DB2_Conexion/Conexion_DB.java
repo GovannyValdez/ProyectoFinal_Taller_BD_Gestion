@@ -31,7 +31,9 @@ public class Conexion_DB {
         return con;
     }
 
-    // -------- MÉTODO PARA INSERTAR --------------------
+   
+    
+    
     public void insertarPrueba(int id, String nombre) {
         String sql = "INSERT INTO PRUEBA (ID, NOMBRE) VALUES (?, ?)";
 
@@ -47,6 +49,9 @@ public class Conexion_DB {
                 System.out.println("✔ Registro insertado correctamente");
             }
 
+            
+            
+            
         } catch (Exception e) {
             System.out.println("❌ Error al insertar");
             System.out.println("Mensaje: " + e.getMessage());

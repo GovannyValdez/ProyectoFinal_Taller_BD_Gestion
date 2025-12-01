@@ -14,6 +14,9 @@ public class Main {
 
         // Puedes intentar otro insert para probar:
         db.insertarPrueba(4, "dato de prueba");
+        
+        
+        
     }
 }
 
