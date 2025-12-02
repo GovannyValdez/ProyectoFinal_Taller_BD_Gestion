@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.mavenproject1;
-
+import java.awt.Window; 
 /**
  *
  * @author govan
@@ -17,8 +17,24 @@ public class MenuEmpleados extends javax.swing.JFrame {
      */
     public MenuEmpleados() {
         initComponents();
+    setLocationRelativeTo(null);
+    cerrarTodasLasVentanasExceptoActual(); 
     }
 
+    public void cerrarTodasLasVentanasExceptoActual() {
+    // Obtener todas las ventanas abiertas
+    Window[] windows = Window.getWindows();
+    
+    for (Window window : windows) {
+        // Cerrar todas las ventanas excepto esta misma
+        if (window != this && window.isVisible()) {
+            window.dispose();
+        }
+    }
+}
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
