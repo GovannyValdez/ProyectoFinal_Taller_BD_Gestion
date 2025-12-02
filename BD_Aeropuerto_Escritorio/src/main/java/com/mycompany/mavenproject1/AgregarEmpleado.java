@@ -323,16 +323,16 @@ public class AgregarEmpleado extends javax.swing.JFrame {
         // TODO add your handling code here:
           MenuInicio menu = new MenuInicio();   // crear ventana principal
        
-    menu.setVisible(true);                // mostrar
+        menu.setVisible(true);                // mostrar
 
-    this.dispose();
+        this.dispose();
         
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void ssnTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ssnTxtActionPerformed
         // TODO add your handling code here:
-ssnTxt.requestFocus();
+        ssnTxt.requestFocus();
     }//GEN-LAST:event_ssnTxtActionPerformed
 
     

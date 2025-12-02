@@ -3,7 +3,21 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.mavenproject1;
+import javax.swing.Timer;
+import javax.swing.table.TableRowSorter;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.SwingUtilities;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.Timer;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.SwingUtilities;
 /**
  *
  * @author govan
@@ -12,13 +26,398 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EliminarEmpleado.class.getName());
 
-    /**
-     * Creates new form EliminarEmpleado
-     */
-    public EliminarEmpleado() {
-        initComponents();
-    }
+    // Configuración DB2
+    private static final String DB_URL = "jdbc:db2://localhost:25000/BD_AEROP";
+    private static final String DB_USER = "db2admin";
+    private static final String DB_PASSWORD = "Govanny27";
+    
+    // Modelo de tabla y sorter
+    private DefaultTableModel modelo;
+    private TableRowSorter<DefaultTableModel> sorter;
+    private String ssnSeleccionado;
+    
+    // Timer para filtrado
+    private Timer timerFiltro;
+    private static final int DELAY_FILTRO = 300;
 
+    public EliminarEmpleado() {
+    initComponents();
+    setLocationRelativeTo(null);
+    
+    // Cambia el orden: primero configurar, luego cargar
+    inicializarTabla();
+    configurarFiltroTiempoReal();
+    cargarTodosEmpleados();  // Este debe ir DESPUÉS
+    
+     mostrarInfoTabla();
+}
+    
+    private void configurarFiltroTiempoReal() {
+        // Timer para delay en filtrado
+        timerFiltro = new Timer(DELAY_FILTRO, e -> aplicarFiltroTiempoReal());
+        timerFiltro.setRepeats(false);
+        
+        // Agregar listeners a los campos que YA EXISTEN en el diseño
+        ssnTxt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                timerFiltro.restart();
+            }
+        });
+        
+        nombreTxt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                timerFiltro.restart();
+            }
+        });
+    }
+    
+    private void aplicarFiltroTiempoReal() {
+    SwingUtilities.invokeLater(() -> {
+        String ssn = obtenerTextoReal(ssnTxt);
+        String nombre = obtenerTextoReal(nombreTxt);
+        
+        System.out.println("Filtrando - SSN: '" + ssn + "', Nombre: '" + nombre + "'");
+        
+        if ((ssn != null && !ssn.isEmpty()) || (nombre != null && !nombre.isEmpty())) {
+            filtrarEnMemoria(ssn, nombre);
+        } else {
+            // Cuando ambos campos están vacíos, QUITAR el filtro
+            if (sorter != null) {
+                sorter.setRowFilter(null);
+            }
+            System.out.println("Sin filtros - Mostrando todos los empleados");
+        }
+    });
+}    
+    private String obtenerTextoReal(JTextField campo) {
+    String texto = campo.getText().trim();
+    
+    System.out.println("Campo texto: '" + texto + "'");
+    
+    // Si el campo está vacío o tiene texto placeholder, retorna null
+    if (texto.isEmpty() || 
+        texto.equals("Ingresar...") || 
+        texto.equals("Ej: 123-45-6789") || 
+        texto.equals("Ej: Juan Pérez") ||
+        texto.equals("Ej: Juan")) {
+        return null;
+    }
+    
+    return texto;
+}
+    
+    private void inicializarTabla() {
+    // Columnas de la tabla
+    String[] columnas = {
+        "SSN", "Nombre", "Apellido Paterno", "Apellido Materno",
+        "Dirección", "Teléfono", "Salario", "Número Membresía"
+    };
+    
+    modelo = new DefaultTableModel(columnas, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    
+    // Asignar modelo a jTable1
+    jTable1.setModel(modelo);
+    
+    // SOLO UN SORTER - NO LOS DOS
+    sorter = new TableRowSorter<>(modelo);
+    jTable1.setRowSorter(sorter);
+    
+    // QUITA ESTA LÍNEA: jTable1.setAutoCreateRowSorter(true);
+    
+    // Configurar selección única
+    jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    
+    // Listener para selección
+    jTable1.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            if (filaSeleccionada >= 0) {
+                int modeloIndex = jTable1.convertRowIndexToModel(filaSeleccionada);
+                ssnSeleccionado = (String) modelo.getValueAt(modeloIndex, 0);
+                eliminarTxt.setEnabled(true);
+                System.out.println("Seleccionado SSN: " + ssnSeleccionado);
+            }
+        }
+    });
+    
+    // Ajustar anchos
+    ajustarAnchosColumnas();
+}
+    
+    private void ajustarAnchosColumnas() {
+        // Solo ajusta propiedades de columnas que YA EXISTEN
+        if (jTable1.getColumnModel().getColumnCount() >= 8) {
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
+            jTable1.getColumnModel().getColumn(1).setPreferredWidth(150);
+            jTable1.getColumnModel().getColumn(2).setPreferredWidth(120);
+            jTable1.getColumnModel().getColumn(3).setPreferredWidth(120);
+            jTable1.getColumnModel().getColumn(4).setPreferredWidth(180);
+            jTable1.getColumnModel().getColumn(5).setPreferredWidth(100);
+            jTable1.getColumnModel().getColumn(6).setPreferredWidth(80);
+            jTable1.getColumnModel().getColumn(7).setPreferredWidth(120);
+        }
+    }
+    
+   private void filtrarEnMemoria(String ssnFiltro, String nombreFiltro) {
+    if (sorter == null) {
+        System.out.println("Error: sorter es null");
+        return;
+    }
+    
+    System.out.println("Aplicando filtro - SSN: '" + ssnFiltro + "', Nombre: '" + nombreFiltro + "'");
+    System.out.println("Total filas en modelo: " + modelo.getRowCount());
+    
+    RowFilter<DefaultTableModel, Integer> filtro = new RowFilter<DefaultTableModel, Integer>() {
+        @Override
+        public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+            boolean mostrar = true;
+            
+            try {
+                // Filtrar por SSN
+                if (ssnFiltro != null && !ssnFiltro.trim().isEmpty()) {
+                    String ssn = (String) entry.getValue(0);
+                    String filtroSSN = ssnFiltro.toLowerCase().trim();
+                    
+                    if (ssn == null || !ssn.toLowerCase().contains(filtroSSN)) {
+                        mostrar = false;
+                    }
+                }
+                
+                // Filtrar por nombre
+                if (mostrar && nombreFiltro != null && !nombreFiltro.trim().isEmpty()) {
+                    String nombre = (String) entry.getValue(1);
+                    String apellidoP = (String) entry.getValue(2);
+                    String apellidoM = (String) entry.getValue(3);
+                    String filtroNombre = nombreFiltro.toLowerCase().trim();
+                    
+                    boolean coincide = false;
+                    
+                    if (nombre != null && nombre.toLowerCase().contains(filtroNombre)) {
+                        coincide = true;
+                    }
+                    if (apellidoP != null && apellidoP.toLowerCase().contains(filtroNombre)) {
+                        coincide = true;
+                    }
+                    if (apellidoM != null && apellidoM.toLowerCase().contains(filtroNombre)) {
+                        coincide = true;
+                    }
+                    
+                    if (!coincide) {
+                        mostrar = false;
+                    }
+                }
+                
+                return mostrar;
+                
+            } catch (Exception e) {
+                System.out.println("Error en filtro: " + e.getMessage());
+                return true;
+            }
+        }
+    };
+    
+    sorter.setRowFilter(filtro);
+    
+    int filasVisibles = jTable1.getRowCount();
+    System.out.println("Resultado: " + filasVisibles + " filas visibles");
+}
+    
+    private void cargarTodosEmpleados() {
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+    
+    try {
+        // Solo limpiar el modelo
+        modelo.setRowCount(0);
+        ssnSeleccionado = null;
+        eliminarTxt.setEnabled(false);
+        
+        Class.forName("com.ibm.db2.jcc.DB2Driver");
+        conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        
+        String sql = "SELECT ssn, nombre, apellido_paterno, apellido_materno, " +
+                    "direccion, telefono, salario, numero_membresia_sindicato " +
+                    "FROM EMPLEADO ORDER BY apellido_paterno, nombre";
+        
+        stmt = conn.createStatement();
+        rs = stmt.executeQuery(sql);
+        
+        int contador = 0;
+        while (rs.next()) {
+            modelo.addRow(new Object[]{
+                rs.getString("ssn"),
+                rs.getString("nombre"),
+                rs.getString("apellido_paterno"),
+                rs.getString("apellido_materno") != null ? rs.getString("apellido_materno") : "",
+                rs.getString("direccion") != null ? rs.getString("direccion") : "",
+                rs.getString("telefono") != null ? rs.getString("telefono") : "",
+                String.format("$%,.2f", rs.getBigDecimal("salario")),
+                rs.getString("numero_membresia_sindicato")
+            });
+            contador++;
+        }
+        
+        System.out.println("Cargados " + contador + " empleados desde DB2");
+        setTitle("Eliminar Empleado - " + contador + " empleados");
+        
+        if (contador == 0) {
+            JOptionPane.showMessageDialog(this, 
+                "No hay empleados registrados.", 
+                "Sin datos", 
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+        
+    } catch (Exception e) {
+        manejarError(e);
+    } finally {
+        cerrarRecursos(rs, stmt, conn);
+    }
+}
+    
+    private boolean eliminarEmpleado(String ssn) {
+        if (ssn == null || ssn.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Seleccione un empleado de la tabla primero.", 
+                "Selección requerida", 
+                JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        
+        // Obtener nombre del empleado seleccionado
+        String nombreEmpleado = "";
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            if (ssn.equals(modelo.getValueAt(i, 0))) {
+                nombreEmpleado = modelo.getValueAt(i, 1) + " " + modelo.getValueAt(i, 2);
+                break;
+            }
+        }
+        
+        // Confirmación
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Eliminar al empleado?\n\n" +
+            "SSN: " + ssn + "\n" +
+            "Nombre: " + nombreEmpleado + "\n\n" +
+            "Esta acción no se puede deshacer.",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return false;
+        }
+        
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            Class.forName("com.ibm.db2.jcc.DB2Driver");
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            String sql = "DELETE FROM EMPLEADO WHERE ssn = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, ssn);
+            
+            int filasAfectadas = pstmt.executeUpdate();
+            
+            if (filasAfectadas > 0) {
+                JOptionPane.showMessageDialog(this,
+                    "✅ Empleado eliminado exitosamente",
+                    "Eliminación exitosa",
+                    JOptionPane.INFORMATION_MESSAGE);
+                
+                // Recargar datos
+                cargarTodosEmpleados();
+                return true;
+            }
+            
+        } catch (SQLException e) {
+            if ("23503".equals(e.getSQLState())) {
+                JOptionPane.showMessageDialog(this,
+                    "No se puede eliminar el empleado porque tiene registros relacionados.",
+                    "Error de integridad referencial",
+                    JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Error de base de datos: " + e.getMessage(),
+                    "Error DB2",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+            return false;
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            return false;
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error al cerrar recursos", e);
+            }
+        }
+        return false;
+    }
+    
+    private void manejarError(Exception e) {
+        logger.log(Level.SEVERE, "Error", e);
+        
+        if (e instanceof ClassNotFoundException) {
+            JOptionPane.showMessageDialog(this, 
+                "Driver DB2 no encontrado. Agrega db2jcc4.jar al proyecto.", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (e instanceof SQLException) {
+            SQLException sqlEx = (SQLException) e;
+            if (sqlEx.getMessage().contains("does not exist") || "42704".equals(sqlEx.getSQLState())) {
+                JOptionPane.showMessageDialog(this, 
+                    "La tabla EMPLEADO no existe. Créala primero en DB2.", 
+                    "Tabla no encontrada", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Error DB2: " + e.getMessage(), 
+                    "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void cerrarRecursos(ResultSet rs, Statement stmt, Connection conn) {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al cerrar recursos", e);
+        }
+    }
+    
+    private void mostrarInfoTabla() {
+    System.out.println("=== INFO TABLA ===");
+    System.out.println("Filas en modelo: " + modelo.getRowCount());
+    System.out.println("Columnas: " + modelo.getColumnCount());
+    
+    for (int i = 0; i < modelo.getColumnCount(); i++) {
+        System.out.println("Col " + i + ": " + modelo.getColumnName(i));
+    }
+    
+    if (modelo.getRowCount() > 0) {
+        System.out.println("Primera fila de datos:");
+        for (int i = 0; i < modelo.getColumnCount(); i++) {
+            System.out.println("  " + modelo.getColumnName(i) + ": " + modelo.getValueAt(0, i));
+        }
+    }
+    System.out.println("==================");
+}
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -36,11 +435,11 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        ssnTxt = new javax.swing.JTextField();
+        nombreTxt = new javax.swing.JTextField();
+        filtrarSsnTxt = new javax.swing.JButton();
+        filtratNombreTxt = new javax.swing.JButton();
+        eliminarTxt = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -98,21 +497,39 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Yu Gothic UI", 1, 12)); // NOI18N
         jLabel3.setText("Filtrar por nombre");
 
-        jTextField1.setText("Ingresar...");
-
-        jTextField2.setText("Ingresar...");
-
-        jButton1.setText("Filtrar ");
-
-        jButton2.setText("Filtrar");
-
-        jButton3.setBackground(new java.awt.Color(255, 0, 0));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Eliminar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        ssnTxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                ssnTxtActionPerformed(evt);
+            }
+        });
+
+        nombreTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nombreTxtActionPerformed(evt);
+            }
+        });
+
+        filtrarSsnTxt.setText("Filtrar ");
+        filtrarSsnTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filtrarSsnTxtActionPerformed(evt);
+            }
+        });
+
+        filtratNombreTxt.setText("Filtrar");
+        filtratNombreTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filtratNombreTxtActionPerformed(evt);
+            }
+        });
+
+        eliminarTxt.setBackground(new java.awt.Color(255, 0, 0));
+        eliminarTxt.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        eliminarTxt.setForeground(new java.awt.Color(255, 255, 255));
+        eliminarTxt.setText("Eliminar");
+        eliminarTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eliminarTxtActionPerformed(evt);
             }
         });
 
@@ -132,14 +549,14 @@ public class EliminarEmpleado extends javax.swing.JFrame {
                             .addComponent(jLabel3))
                         .addGap(32, 32, 32)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
-                            .addComponent(jTextField1))))
+                            .addComponent(nombreTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
+                            .addComponent(ssnTxt))))
                 .addGap(28, 28, 28)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(filtrarSsnTxt)
+                    .addComponent(filtratNombreTxt))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
+                .addComponent(eliminarTxt)
                 .addGap(28, 28, 28))
         );
         jPanel3Layout.setVerticalGroup(
@@ -148,17 +565,17 @@ public class EliminarEmpleado extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(eliminarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1))
+                            .addComponent(ssnTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(filtrarSsnTxt))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2))))
+                            .addComponent(nombreTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(filtratNombreTxt))))
                 .addGap(0, 28, Short.MAX_VALUE))
         );
 
@@ -181,6 +598,9 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
+    
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
           MenuInicio menu = new MenuInicio();   // crear ventana principal
@@ -195,9 +615,32 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     
     
     
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void eliminarTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarTxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+        eliminarEmpleado(ssnSeleccionado);
+    }//GEN-LAST:event_eliminarTxtActionPerformed
+
+    private void ssnTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ssnTxtActionPerformed
+        // TODO add your handling code here:
+        
+        filtrarSsnTxtActionPerformed(evt);
+        
+    }//GEN-LAST:event_ssnTxtActionPerformed
+
+    private void nombreTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nombreTxtActionPerformed
+        // TODO add your handling code here:
+       aplicarFiltroTiempoReal();
+    }//GEN-LAST:event_nombreTxtActionPerformed
+
+    private void filtrarSsnTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarSsnTxtActionPerformed
+        // TODO add your handling code here:
+        aplicarFiltroTiempoReal();
+    }//GEN-LAST:event_filtrarSsnTxtActionPerformed
+
+    private void filtratNombreTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtratNombreTxtActionPerformed
+        // TODO add your handling code here:
+         aplicarFiltroTiempoReal();
+    }//GEN-LAST:event_filtratNombreTxtActionPerformed
 
     /**
      * @param args the command line arguments
@@ -225,9 +668,9 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JButton eliminarTxt;
+    private javax.swing.JButton filtrarSsnTxt;
+    private javax.swing.JButton filtratNombreTxt;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -236,7 +679,7 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField nombreTxt;
+    private javax.swing.JTextField ssnTxt;
     // End of variables declaration//GEN-END:variables
 }
