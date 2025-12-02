@@ -616,12 +616,10 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-          MenuInicio menu = new MenuInicio();   // crear ventana principal
+         MenuEmpleados menu = new MenuEmpleados();   // crear ventana principal
        
     menu.setVisible(true);                // mostrar
 
-    
-    
     this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 

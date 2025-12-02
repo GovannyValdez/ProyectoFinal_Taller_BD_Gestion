@@ -321,11 +321,11 @@ public class AgregarEmpleado extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-          MenuInicio menu = new MenuInicio();   // crear ventana principal
+           MenuEmpleados menu = new MenuEmpleados();   // crear ventana principal
        
-        menu.setVisible(true);                // mostrar
+    menu.setVisible(true);                // mostrar
 
-        this.dispose();
+    this.dispose();
         
         
     }//GEN-LAST:event_jButton3ActionPerformed
