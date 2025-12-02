@@ -8,6 +8,12 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Timer;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowFilter;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -21,184 +27,192 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
      * Creates new form ConsultarEmpleado
      */
     
-    private static final String DB_URL = "jdbc:db2://localhost:25000/BD_AEROP";
+   private static final String DB_URL = "jdbc:db2://localhost:25000/BD_AEROP";
     private static final String DB_USER = "db2admin";
     private static final String DB_PASSWORD = "Govanny27";
+    
     private DefaultTableModel modelo;
+    private TableRowSorter<DefaultTableModel> sorter;
+    private Timer timerFiltro;
+    private static final int DELAY_FILTRO = 300;
 
-    /**
-     * Creates new form ConsultarEmpleado
-     */
     public ConsultarEmpleado() {
         initComponents();
-        setLocationRelativeTo(null);  // Centrar ventana
+        setLocationRelativeTo(null);
         inicializarTabla();
-        cargarTodosEmpleados();  // Cargar datos al iniciar
+        configurarFiltroTiempoReal();
+        cargarTodosEmpleados();
     }
     
-    /**
-     * Inicializa la tabla con las columnas correctas
-     */
+    private void configurarFiltroTiempoReal() {
+        timerFiltro = new Timer(DELAY_FILTRO, e -> aplicarFiltroTiempoReal());
+        timerFiltro.setRepeats(false);
+        
+        // Filtro en tiempo real para SSN
+        filtrarTxt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                timerFiltro.restart();
+            }
+        });
+        
+        // Filtro en tiempo real para Nombre
+        filtrarNombreTxt.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                timerFiltro.restart();
+            }
+        });
+    }
+    
+    private void aplicarFiltroTiempoReal() {
+        SwingUtilities.invokeLater(() -> {
+            String ssn = filtrarTxt.getText().trim();
+            String nombre = filtrarNombreTxt.getText().trim();
+            
+            if (!ssn.isEmpty() || !nombre.isEmpty()) {
+                filtrarEnMemoria(ssn, nombre);
+            } else {
+                // Si ambos campos están vacíos, mostrar todos
+                if (sorter != null) {
+                    sorter.setRowFilter(null);
+                }
+            }
+        });
+    }
+    
     private void inicializarTabla() {
-        // Definir nombres de columnas (igual que tu tabla EMPLEADO)
         String[] columnas = {
-            "SSN", 
-            "Nombre", 
-            "Apellido Paterno", 
-            "Apellido Materno",
-            "Dirección",
-            "Teléfono",
-            "Salario",
-            "Número Membresía"
+            "SSN", "Nombre", "Apellido Paterno", "Apellido Materno",
+            "Dirección", "Teléfono", "Salario", "Número Membresía"
         };
         
-        // Crear modelo de tabla
         modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla de solo lectura
-            }
-            
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                // Esto ayuda a que los datos se muestren correctamente
-                return String.class;
+                return false;
             }
         };
         
-        // Asignar modelo a la tabla
         jTable1.setModel(modelo);
         
-        // Ajustar anchos de columnas para mejor visualización
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);  // SSN
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(150);  // Nombre
-        jTable1.getColumnModel().getColumn(2).setPreferredWidth(120);  // Apellido Paterno
-        jTable1.getColumnModel().getColumn(3).setPreferredWidth(120);  // Apellido Materno
-        jTable1.getColumnModel().getColumn(4).setPreferredWidth(200);  // Dirección
-        jTable1.getColumnModel().getColumn(5).setPreferredWidth(100);  // Teléfono
-        jTable1.getColumnModel().getColumn(6).setPreferredWidth(100);  // Salario
-        jTable1.getColumnModel().getColumn(7).setPreferredWidth(120);  // Membresía
+        // Configurar TableRowSorter para filtrado en memoria
+        sorter = new TableRowSorter<>(modelo);
+        jTable1.setRowSorter(sorter);
         
-        // Habilitar ordenamiento por columnas
-        jTable1.setAutoCreateRowSorter(true);
+        // Desactivar autoCreateRowSorter para evitar conflictos
+        jTable1.setAutoCreateRowSorter(false);
+        
+        // Ajustar anchos de columnas
+        ajustarAnchosColumnas();
     }
     
-    /**
-     * Carga TODOS los empleados de la base de datos
-     */
+    private void ajustarAnchosColumnas() {
+        jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(1).setPreferredWidth(150);
+        jTable1.getColumnModel().getColumn(2).setPreferredWidth(120);
+        jTable1.getColumnModel().getColumn(3).setPreferredWidth(120);
+        jTable1.getColumnModel().getColumn(4).setPreferredWidth(200);
+        jTable1.getColumnModel().getColumn(5).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(6).setPreferredWidth(100);
+        jTable1.getColumnModel().getColumn(7).setPreferredWidth(120);
+    }
+    
+    private void filtrarEnMemoria(String ssnFiltro, String nombreFiltro) {
+        if (sorter == null) return;
+        
+        RowFilter<DefaultTableModel, Integer> filtro = new RowFilter<DefaultTableModel, Integer>() {
+            @Override
+            public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                boolean cumpleSSN = true;
+                boolean cumpleNombre = true;
+                
+                // Filtrar por SSN
+                if (!ssnFiltro.isEmpty()) {
+                    String ssn = (String) entry.getValue(0);
+                    cumpleSSN = ssn != null && ssn.toLowerCase().contains(ssnFiltro.toLowerCase());
+                }
+                
+                // Filtrar por nombre (busca en nombre y apellidos)
+                if (!nombreFiltro.isEmpty()) {
+                    String nombre = (String) entry.getValue(1);
+                    String apellidoP = (String) entry.getValue(2);
+                    String apellidoM = (String) entry.getValue(3);
+                    
+                    String buscar = nombreFiltro.toLowerCase();
+                    
+                    boolean coincide = false;
+                    if (nombre != null && nombre.toLowerCase().contains(buscar)) {
+                        coincide = true;
+                    }
+                    if (apellidoP != null && apellidoP.toLowerCase().contains(buscar)) {
+                        coincide = true;
+                    }
+                    if (apellidoM != null && apellidoM.toLowerCase().contains(buscar)) {
+                        coincide = true;
+                    }
+                    
+                    cumpleNombre = coincide;
+                }
+                
+                return cumpleSSN && cumpleNombre;
+            }
+        };
+        
+        sorter.setRowFilter(filtro);
+        
+        // Actualizar contador en título
+        int visible = jTable1.getRowCount();
+        int total = modelo.getRowCount();
+        setTitle("Consultar Empleado - Mostrando " + visible + " de " + total + " empleados");
+    }
+    
     private void cargarTodosEmpleados() {
-        cargarEmpleados("");  // Cadena vacía = mostrar todos
-    }
-    
-    /**
-     * Carga empleados, con opción de filtrar por SSN
-     */
-    private void cargarEmpleados(String filtroSSN) {
-        // Limpiar tabla
-        modelo.setRowCount(0);
-        
         Connection conn = null;
-        PreparedStatement pstmt = null;
+        Statement stmt = null;
         ResultSet rs = null;
         
         try {
-            // Cargar driver DB2
-            Class.forName("com.ibm.db2.jcc.DB2Driver");
+            modelo.setRowCount(0);
             
-            // Establecer conexión
+            Class.forName("com.ibm.db2.jcc.DB2Driver");
             conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             
-            // Construir consulta SQL
             String sql = "SELECT ssn, nombre, apellido_paterno, apellido_materno, " +
                         "direccion, telefono, salario, numero_membresia_sindicato " +
-                        "FROM EMPLEADO";
+                        "FROM EMPLEADO ORDER BY apellido_paterno, nombre";
             
-            // Si hay filtro, agregar WHERE
-            if (filtroSSN != null && !filtroSSN.trim().isEmpty()) {
-                sql += " WHERE ssn LIKE ?";
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, "%" + filtroSSN.trim() + "%");
-            } else {
-                sql += " ORDER BY apellido_paterno, nombre";
-                pstmt = conn.prepareStatement(sql);
-            }
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(sql);
             
-            // Ejecutar consulta
-            rs = pstmt.executeQuery();
-            
-            // Contador de registros
             int contador = 0;
-            
-            // Llenar la tabla con los resultados
             while (rs.next()) {
-                Object[] fila = {
+                modelo.addRow(new Object[]{
                     rs.getString("ssn"),
                     rs.getString("nombre"),
                     rs.getString("apellido_paterno"),
-                    rs.getString("apellido_materno") != null ? rs.getString("apellido_materno") : "", // Manejar nulos
+                    rs.getString("apellido_materno") != null ? rs.getString("apellido_materno") : "",
                     rs.getString("direccion") != null ? rs.getString("direccion") : "",
                     rs.getString("telefono") != null ? rs.getString("telefono") : "",
-                    String.format("$%,.2f", rs.getBigDecimal("salario")),  // Formatear salario como moneda
+                    String.format("$%,.2f", rs.getBigDecimal("salario")),
                     rs.getString("numero_membresia_sindicato")
-                };
-                
-                modelo.addRow(fila);
+                });
                 contador++;
             }
             
-            // Mostrar mensaje si no hay resultados
+            setTitle("Consultar Empleado - " + contador + " empleados");
+            
             if (contador == 0) {
-                if (filtroSSN != null && !filtroSSN.trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, 
-                        "No se encontraron empleados con SSN: " + filtroSSN, 
-                        "Sin resultados", 
-                        JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, 
-                        "No hay empleados registrados en el sistema.", 
-                        "Sin datos", 
-                        JOptionPane.INFORMATION_MESSAGE);
-                }
+                JOptionPane.showMessageDialog(this, 
+                    "No hay empleados registrados.", 
+                    "Sin datos", 
+                    JOptionPane.INFORMATION_MESSAGE);
             }
             
-        } catch (ClassNotFoundException e) {
-            logger.log(Level.SEVERE, "Driver DB2 no encontrado", e);
-            JOptionPane.showMessageDialog(this, 
-                "Error: Driver DB2 no encontrado. Asegúrate de agregar db2jcc4.jar al proyecto.", 
-                "Error del Sistema", 
-                JOptionPane.ERROR_MESSAGE);
-            
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al consultar empleados", e);
-            
-            // Verificar si la tabla existe
-            if (e.getMessage().contains("does not exist") || e.getSQLState().equals("42704")) {
-                JOptionPane.showMessageDialog(this, 
-                    "Error: La tabla EMPLEADO no existe.\n" +
-                    "Ejecuta primero el script de creación de tabla.", 
-                    "Tabla no encontrada", 
-                    JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, 
-                    "Error de base de datos: " + e.getMessage(), 
-                    "Error DB2", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-            
-            
-            
-            
-            
-            
+        } catch (Exception e) {
+            manejarError(e);
         } finally {
-            // Cerrar recursos
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error al cerrar recursos", e);
-            }
+            cerrarRecursos(rs, stmt, conn);
         }
     }
     
@@ -228,6 +242,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         filtrarNombreTxt = new javax.swing.JTextField();
         vaciarNombreBtn = new javax.swing.JButton();
+        mostrarTodoBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -327,6 +342,13 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
             }
         });
 
+        mostrarTodoBtn.setText("Mostrar todo");
+        mostrarTodoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostrarTodoBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -354,8 +376,10 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                                     .addComponent(vaciarSsnBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
                                     .addComponent(vaciarNombreBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(filtrarBtn)
-                                .addGap(77, 77, 77))))))
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(filtrarBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(mostrarTodoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(74, 74, 74))))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -368,12 +392,17 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                     .addComponent(filtrarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filtrarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(vaciarSsnBtn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(filtrarNombreTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(vaciarNombreBtn))
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(filtrarNombreTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(vaciarNombreBtn)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(mostrarTodoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -412,26 +441,86 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
     
     
     
+    
+    
     private void filtrarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarBtnActionPerformed
         // TODO add your handling code here:
+        aplicarFiltroTiempoReal();
     }//GEN-LAST:event_filtrarBtnActionPerformed
 
     private void vaciarSsnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarSsnBtnActionPerformed
         // TODO add your handling code here:
+        // Vaciar campo SSN
+        filtrarTxt.setText("");
+        filtrarTxt.requestFocus();
+        aplicarFiltroTiempoReal(); // Actualizar filtro
     }//GEN-LAST:event_vaciarSsnBtnActionPerformed
 
     private void filtrarTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarTxtActionPerformed
         // TODO add your handling code here:
+        aplicarFiltroTiempoReal();
     }//GEN-LAST:event_filtrarTxtActionPerformed
 
     private void filtrarNombreTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarNombreTxtActionPerformed
         // TODO add your handling code here:
+        aplicarFiltroTiempoReal();
     }//GEN-LAST:event_filtrarNombreTxtActionPerformed
 
     private void vaciarNombreBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarNombreBtnActionPerformed
         // TODO add your handling code here:
+        // Vaciar campo Nombre
+        filtrarNombreTxt.setText("");
+        filtrarNombreTxt.requestFocus();
+        aplicarFiltroTiempoReal(); // Actualizar filtro
     }//GEN-LAST:event_vaciarNombreBtnActionPerformed
 
+    private void mostrarTodoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarTodoBtnActionPerformed
+        // TODO add your handling code here:
+        // Mostrar todos los empleados
+        filtrarTxt.setText("");
+        filtrarNombreTxt.setText("");
+        
+        if (sorter != null) {
+            sorter.setRowFilter(null);
+        }
+        
+        cargarTodosEmpleados();
+    }//GEN-LAST:event_mostrarTodoBtnActionPerformed
+
+    
+    // Métodos auxiliares
+
+    private void manejarError(Exception e) {
+        logger.log(Level.SEVERE, "Error", e);
+        
+        if (e instanceof ClassNotFoundException) {
+            JOptionPane.showMessageDialog(this, 
+                "Error: Driver DB2 no encontrado.\nAgrega db2jcc4.jar al proyecto.", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (e instanceof SQLException) {
+            SQLException sqlEx = (SQLException) e;
+            if (sqlEx.getMessage().contains("does not exist") || "42704".equals(sqlEx.getSQLState())) {
+                JOptionPane.showMessageDialog(this, 
+                    "La tabla EMPLEADO no existe.\nCréala primero en DB2.", 
+                    "Tabla no encontrada", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Error DB2: " + e.getMessage(), 
+                    "Error de base de datos", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void cerrarRecursos(ResultSet rs, Statement stmt, Connection conn) {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al cerrar recursos", e);
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -469,6 +558,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JButton mostrarTodoBtn;
     private javax.swing.JButton vaciarNombreBtn;
     private javax.swing.JButton vaciarSsnBtn;
     // End of variables declaration//GEN-END:variables
