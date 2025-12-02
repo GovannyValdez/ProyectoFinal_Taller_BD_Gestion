@@ -88,31 +88,7 @@ public class Conexion_DB {
         }
     }
 }
-
    
     
     
-    /*public void insertarPrueba(int id, String nombre) {
-        String sql = "INSERT INTO PRUEBA (ID, NOMBRE) VALUES (?, ?)";
-
-        try (Connection con = conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ps.setString(2, nombre);
-
-            int filas = ps.executeUpdate();
-
-            if (filas > 0) {
-                System.out.println("✔ Registro insertado correctamente");
-            }
-
-            
-            
-            
-        } catch (Exception e) {
-            System.out.println("❌ Error al insertar");
-            System.out.println("Mensaje: " + e.getMessage());
-        }
-    }
-}
+    
