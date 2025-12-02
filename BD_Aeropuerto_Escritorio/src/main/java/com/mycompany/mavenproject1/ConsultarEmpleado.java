@@ -185,6 +185,11 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
             }
             
+            
+            
+            
+            
+            
         } finally {
             // Cerrar recursos
             try {
@@ -219,6 +224,10 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         filtrarTxt = new javax.swing.JTextField();
         filtrarBtn = new javax.swing.JButton();
+        vaciarSsnBtn = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        filtrarNombreTxt = new javax.swing.JTextField();
+        vaciarNombreBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -278,11 +287,43 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Buscar por SSN");
 
+        filtrarTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filtrarTxtActionPerformed(evt);
+            }
+        });
+
         filtrarBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         filtrarBtn.setText("Buscar");
         filtrarBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filtrarBtnActionPerformed(evt);
+            }
+        });
+
+        vaciarSsnBtn.setBackground(new java.awt.Color(204, 0, 0));
+        vaciarSsnBtn.setForeground(new java.awt.Color(255, 255, 255));
+        vaciarSsnBtn.setText("X");
+        vaciarSsnBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vaciarSsnBtnActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Buscar por Nombre");
+
+        filtrarNombreTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filtrarNombreTxtActionPerformed(evt);
+            }
+        });
+
+        vaciarNombreBtn.setBackground(new java.awt.Color(204, 0, 51));
+        vaciarNombreBtn.setForeground(new java.awt.Color(255, 255, 255));
+        vaciarNombreBtn.setText("X");
+        vaciarNombreBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vaciarNombreBtnActionPerformed(evt);
             }
         });
 
@@ -292,18 +333,29 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(49, 49, 49)
-                .addComponent(jLabel2)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(60, 60, 60)
-                        .addComponent(jLabel1)
-                        .addContainerGap(379, Short.MAX_VALUE))
+                        .addComponent(jLabel3)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(94, 94, 94)
-                        .addComponent(filtrarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(filtrarBtn)
-                        .addGap(77, 77, 77))))
+                        .addComponent(jLabel2)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(60, 60, 60)
+                                .addComponent(jLabel1)
+                                .addContainerGap(379, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(94, 94, 94)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(filtrarNombreTxt)
+                                    .addComponent(filtrarTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(vaciarSsnBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                                    .addComponent(vaciarNombreBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(filtrarBtn)
+                                .addGap(77, 77, 77))))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -314,8 +366,14 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(filtrarTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filtrarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(74, Short.MAX_VALUE))
+                    .addComponent(filtrarBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(vaciarSsnBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(filtrarNombreTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(vaciarNombreBtn))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -358,6 +416,22 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_filtrarBtnActionPerformed
 
+    private void vaciarSsnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarSsnBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_vaciarSsnBtnActionPerformed
+
+    private void filtrarTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_filtrarTxtActionPerformed
+
+    private void filtrarNombreTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filtrarNombreTxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_filtrarNombreTxtActionPerformed
+
+    private void vaciarNombreBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarNombreBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_vaciarNombreBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -385,13 +459,17 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton filtrarBtn;
+    private javax.swing.JTextField filtrarNombreTxt;
     private javax.swing.JTextField filtrarTxt;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JButton vaciarNombreBtn;
+    private javax.swing.JButton vaciarSsnBtn;
     // End of variables declaration//GEN-END:variables
 }

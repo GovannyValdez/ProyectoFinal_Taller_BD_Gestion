@@ -250,6 +250,9 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         stmt = conn.createStatement();
         rs = stmt.executeQuery(sql);
         
+        
+        
+        
         int contador = 0;
         while (rs.next()) {
             modelo.addRow(new Object[]{
@@ -282,6 +285,8 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     }
 }
     
+    
+    
     private boolean eliminarEmpleado(String ssn) {
         if (ssn == null || ssn.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, 
@@ -290,6 +295,9 @@ public class EliminarEmpleado extends javax.swing.JFrame {
                 JOptionPane.WARNING_MESSAGE);
             return false;
         }
+        
+        
+        
         
         // Obtener nombre del empleado seleccionado
         String nombreEmpleado = "";
@@ -365,6 +373,8 @@ public class EliminarEmpleado extends javax.swing.JFrame {
                 logger.log(Level.SEVERE, "Error al cerrar recursos", e);
             }
         }
+        
+        
         return false;
     }
     
@@ -397,6 +407,9 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al cerrar recursos", e);
         }
+          
+        
+        
     }
     
     private void mostrarInfoTabla() {
@@ -607,6 +620,8 @@ public class EliminarEmpleado extends javax.swing.JFrame {
        
     menu.setVisible(true);                // mostrar
 
+    
+    
     this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 
