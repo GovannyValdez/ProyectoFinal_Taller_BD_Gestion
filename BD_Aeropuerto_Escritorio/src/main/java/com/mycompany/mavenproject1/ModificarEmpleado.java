@@ -17,6 +17,7 @@ public class ModificarEmpleado extends javax.swing.JFrame {
      */
     public ModificarEmpleado() {
         initComponents();
+         setLocationRelativeTo(null);
     }
 
     /**
@@ -71,8 +72,10 @@ public class ModificarEmpleado extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setBackground(new java.awt.Color(102, 102, 102));
         jButton1.setText("Modificar");
 
+        jButton2.setBackground(new java.awt.Color(102, 102, 102));
         jButton2.setText("Limpiar casillas");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -161,6 +164,7 @@ public class ModificarEmpleado extends javax.swing.JFrame {
 
         jLabel8.setText("Membresia");
 
+        jButton3.setBackground(new java.awt.Color(102, 102, 102));
         jButton3.setText("Regresar");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -234,7 +238,7 @@ public class ModificarEmpleado extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         
-           MenuInicio menu = new MenuInicio();   // crear ventana principal
+           MenuEmpleados menu = new MenuEmpleados();   // crear ventana principal
        
     menu.setVisible(true);                // mostrar
 
