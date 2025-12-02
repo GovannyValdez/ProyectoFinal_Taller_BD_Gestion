@@ -309,6 +309,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         });
 
         filtrarBtn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        filtrarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-buscar-24.png")); // NOI18N
         filtrarBtn.setText("Buscar");
         filtrarBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
