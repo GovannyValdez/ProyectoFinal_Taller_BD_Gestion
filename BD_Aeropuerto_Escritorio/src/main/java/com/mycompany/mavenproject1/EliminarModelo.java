@@ -21,10 +21,11 @@ public class EliminarModelo extends javax.swing.JFrame {
     private String modeloSeleccionado = ""; 
 
     public EliminarModelo() {
-        initComponents();
+         initComponents();
         configurarTabla();
         configurarBusquedaAutomatica();
-            setLocationRelativeTo(null);
+        configurarEliminarPorDobleClic(); 
+        setLocationRelativeTo(null);
 
     }
 
@@ -63,7 +64,7 @@ public class EliminarModelo extends javax.swing.JFrame {
     private void manejarErrorSQL(SQLException e, String operacion) {
         String mensaje = "❌ Error al " + operacion + " modelo: ";
         
-        if (e.getErrorCode() == -803) { // Violación de integridad referencial
+        if (e.getErrorCode() == -803) { 
             mensaje += "No se puede eliminar porque está siendo usado en otras tablas";
         } else {
             mensaje += e.getMessage();
@@ -88,7 +89,7 @@ public class EliminarModelo extends javax.swing.JFrame {
     
     
     
-    private void configurarBusquedaAutomatica() {
+     private void configurarBusquedaAutomatica() {
         timerBusqueda = new javax.swing.Timer(300, e -> {
             buscarAutomaticamente();
         });
@@ -151,13 +152,13 @@ public class EliminarModelo extends javax.swing.JFrame {
             
             if (!verificarExistenciaModelo(numeroModelo)) {
                 javax.swing.JOptionPane.showMessageDialog(this,
-                    "❌ El modelo " + numeroModelo + " no existe",
+                    "❌ El modelo '" + numeroModelo + "' no existe",
                     "Modelo no encontrado",
                     javax.swing.JOptionPane.WARNING_MESSAGE);
                 return;
             }
             
-            String sql = "DELETE FROM ModelosAvion WHERE ModelNumber = ?";
+            String sql = "DELETE FROM ModelosAvion WHERE UPPER(ModelNumber) = UPPER(?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, numeroModelo);
             
@@ -165,7 +166,7 @@ public class EliminarModelo extends javax.swing.JFrame {
             
             if (filasEliminadas > 0) {
                 javax.swing.JOptionPane.showMessageDialog(this,
-                    "✅ Modelo " + numeroModelo + " eliminado exitosamente",
+                    "✅ Modelo '" + numeroModelo + "' eliminado exitosamente",
                     "Eliminación exitosa",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE);
                 
@@ -175,6 +176,11 @@ public class EliminarModelo extends javax.swing.JFrame {
                 if (!buscarModeloTxt.getText().trim().isEmpty()) {
                     buscarAutomaticamente();
                 }
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ No se pudo eliminar el modelo '" + numeroModelo + "'",
+                    "Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
             }
             
         } catch (SQLException e) {
@@ -182,7 +188,7 @@ public class EliminarModelo extends javax.swing.JFrame {
         } finally {
             cerrarRecursos(null, pstmt);
         }
-     }
+    }
      
      
         
@@ -198,7 +204,7 @@ public class EliminarModelo extends javax.swing.JFrame {
                 return false;
             }
             
-            String sql = "SELECT 1 FROM ModelosAvion WHERE ModelNumber = ?";
+            String sql = "SELECT 1 FROM ModelosAvion WHERE UPPER(ModelNumber) = UPPER(?)";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, numeroModelo);
             
@@ -213,7 +219,7 @@ public class EliminarModelo extends javax.swing.JFrame {
         }
     }
         
-    private void buscarEnDB(String textoBusqueda) {
+   private void buscarEnDB(String textoBusqueda) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -226,9 +232,9 @@ public class EliminarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion WHERE UPPER(ModelNumber) LIKE ? ORDER BY ModelNumber";
+            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion WHERE UPPER(ModelNumber) LIKE UPPER(?) ORDER BY ModelNumber";
             pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, "%" + textoBusqueda.toUpperCase() + "%");
+            pstmt.setString(1, "%" + textoBusqueda + "%");
             
             rs = pstmt.executeQuery();
             
@@ -259,9 +265,13 @@ public class EliminarModelo extends javax.swing.JFrame {
         if (contador == 1) {
             jTable1.setRowSelectionInterval(0, 0);
         }
+        
+        if (contador == 0) {
+            modeloSeleccionado = "";
+        }
     }
         
-    private void vaciarCampos() {
+     private void vaciarCampos() {
         buscarModeloTxt.setText("");
         limpiarTabla();
         modeloSeleccionado = "";
@@ -293,20 +303,25 @@ public class EliminarModelo extends javax.swing.JFrame {
         buscarModeloTxt = new javax.swing.JTextField();
         vaciarBtn = new javax.swing.JButton();
         eliminarModeloBtn = new javax.swing.JButton();
+        mostratTodoBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel1.setForeground(new java.awt.Color(0, 0, 204));
 
-        jLabel1.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setFont(new java.awt.Font("Yu Gothic UI", 1, 24)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Eliminar modelo");
 
-        jLabel2.setBackground(new java.awt.Color(0, 0, 0));
-        jLabel2.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setFont(new java.awt.Font("Yu Gothic UI", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Buscar por numero de modelo");
 
         buscarModeloTxt.addActionListener(new java.awt.event.ActionListener() {
@@ -330,44 +345,58 @@ public class EliminarModelo extends javax.swing.JFrame {
             }
         });
 
+        mostratTodoBtn.setBackground(new java.awt.Color(0, 102, 0));
+        mostratTodoBtn.setForeground(new java.awt.Color(255, 255, 255));
+        mostratTodoBtn.setText("Mostrar todo");
+        mostratTodoBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mostratTodoBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(304, 304, 304)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jLabel2)
-                .addGap(28, 28, 28)
-                .addComponent(buscarModeloTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(vaciarBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                .addComponent(eliminarModeloBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(46, 46, 46))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(mostratTodoBtn)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(28, 28, 28)
+                        .addComponent(buscarModeloTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(vaciarBtn)
+                        .addGap(33, 33, 33)
+                        .addComponent(eliminarModeloBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(10, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(279, 279, 279))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
+                        .addGap(68, 68, 68)
                         .addComponent(eliminarModeloBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)
                         .addGap(50, 50, 50)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(buscarModeloTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(vaciarBtn)
                             .addComponent(jLabel2))))
-                .addContainerGap(51, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(mostratTodoBtn)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel2.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -382,21 +411,36 @@ public class EliminarModelo extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
+        jButton1.setBackground(new java.awt.Color(102, 102, 102));
+        jButton1.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-volver-24.png")); // NOI18N
+        jButton1.setText("Regresar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -411,8 +455,7 @@ public class EliminarModelo extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -425,13 +468,13 @@ public class EliminarModelo extends javax.swing.JFrame {
 
     private void vaciarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarBtnActionPerformed
         // TODO add your handling code here:
-         vaciarCampos();
+        vaciarCampos();
     }//GEN-LAST:event_vaciarBtnActionPerformed
 
     private void eliminarModeloBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarModeloBtnActionPerformed
         // TODO add your handling code here:
-        if (modeloSeleccionado.isEmpty()) {
-            modeloSeleccionado = buscarModeloTxt.getText().trim().toUpperCase();
+         if (modeloSeleccionado.isEmpty()) {
+            modeloSeleccionado = buscarModeloTxt.getText().trim();
             
             if (modeloSeleccionado.isEmpty()) {
                 javax.swing.JOptionPane.showMessageDialog(this,
@@ -453,6 +496,69 @@ public class EliminarModelo extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_eliminarModeloBtnActionPerformed
 
+    private void mostratTodoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostratTodoBtnActionPerformed
+        // TODO add your handling code here:
+         mostrarTodosModelos();
+    }//GEN-LAST:event_mostratTodoBtnActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        MenuModelos menu = new MenuModelos();  
+       
+    menu.setVisible(true);                
+
+    this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    
+    
+    private void mostrarTodosModelos() {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    
+    try {
+        conn = Conexion_DB.getInstance().getConnection();
+        
+        if (conn == null) {
+            mostrarErrorConexion();
+            return;
+        }
+        
+        buscarModeloTxt.setText("");
+        modeloSeleccionado = "";
+        
+        String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion ORDER BY ModelNumber";
+        pstmt = conn.prepareStatement(sql);
+        rs = pstmt.executeQuery();
+        
+        actualizarTablaConResultados(rs);
+        
+        DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
+        int totalModelos = modeloTabla.getRowCount();
+        
+        if (totalModelos > 0) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "✅ Se muestran " + totalModelos + " modelos",
+                "Mostrar todos",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "ℹ️ No hay modelos registrados",
+                "Sin resultados",
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+        
+    } catch (SQLException e) {
+        manejarErrorSQL(e, "mostrar todos");
+    } finally {
+        cerrarRecursos(rs, pstmt);
+    }
+}
+    
+    
+    
+    
     private void configurarEliminarPorDobleClic() {
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -508,12 +614,14 @@ public class EliminarModelo extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField buscarModeloTxt;
     private javax.swing.JButton eliminarModeloBtn;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JButton mostratTodoBtn;
     private javax.swing.JButton vaciarBtn;
     // End of variables declaration//GEN-END:variables
 }
