@@ -11,6 +11,7 @@ com\mycompany\mavenproject1\AgregarEmpleado$3.class
 com\mycompany\mavenproject1\MenuEmpleados$6.class
 com\mycompany\mavenproject1\MenuEmpleados$3.class
 com\mycompany\mavenproject1\EliminarModelo$1.class
+com\mycompany\mavenproject1\ModificarModelo$8.class
 com\mycompany\mavenproject1\EliminarModelo$6.class
 com\mycompany\mavenproject1\AgregarModelo$4.class
 com\mycompany\mavenproject1\ConsultarEmpleado$9.class
@@ -77,6 +78,7 @@ com\mycompany\mavenproject1\AgregarEmpleado$4.class
 com\mycompany\mavenproject1\EliminarEmpleado$7.class
 com\mycompany\mavenproject1\EliminarModelo$7.class
 com\mycompany\mavenproject1\AgregarEmpleado$11.class
+com\mycompany\mavenproject1\ModificarModelo$7.class
 com\mycompany\mavenproject1\MenuEmpleados$1.class
 com\mycompany\mavenproject1\EliminarModelo$3.class
 com\mycompany\mavenproject1\ConsultarModelo$4.class

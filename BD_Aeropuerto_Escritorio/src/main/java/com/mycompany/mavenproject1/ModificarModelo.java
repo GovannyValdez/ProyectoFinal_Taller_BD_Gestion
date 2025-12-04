@@ -5,6 +5,17 @@
 
 package com.mycompany.mavenproject1;
 
+
+import DB2_Conexion.Conexion_DB;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.RowFilter;
+import javax.swing.table.TableRowSorter;
 /**
  *
  * @author govan
@@ -13,10 +24,441 @@ public class ModificarModelo extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ModificarModelo.class.getName());
 
-    /** Creates new form ModificarModelo */
+    private javax.swing.Timer timerBusqueda;
+    private String modeloSeleccionado = "";
+    private DefaultTableModel modeloTabla;
+    private TableRowSorter<DefaultTableModel> sorter;
+
     public ModificarModelo() {
         initComponents();
+        configurarTabla();
+        configurarBusquedaAutomatica();
+        setLocationRelativeTo(null);
+        cargarTodosModelos();
+        
+        capacidadTxt.setEnabled(false);
+        pesoTxt.setEnabled(false);
+        modificarBtn.setEnabled(false);
+        
+        jButton4.addActionListener(e -> {
+            MenuModelos menu = new MenuModelos();
+            menu.setVisible(true);
+            this.dispose();
+        });
     }
+
+    private void configurarTabla() {
+        modeloTabla = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        modeloTabla.addColumn("Número de Modelo");
+        modeloTabla.addColumn("Capacidad");
+        modeloTabla.addColumn("Peso");
+        
+        jTable1.setModel(modeloTabla);
+        
+        sorter = new TableRowSorter<>(modeloTabla);
+        jTable1.setRowSorter(sorter);
+        
+        jTable1.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && jTable1.getSelectedRow() != -1) {
+                cargarDatosDesdeTabla();
+            }
+        });
+    }
+    
+    private void cargarDatosDesdeTabla() {
+        int filaSeleccionada = jTable1.getSelectedRow();
+        if (filaSeleccionada >= 0) {
+            int modeloIndex = jTable1.convertRowIndexToModel(filaSeleccionada);
+            
+            modeloSeleccionado = modeloTabla.getValueAt(modeloIndex, 0).toString();
+            numeroModeloTxt.setText(modeloSeleccionado);
+            capacidadTxt.setText(modeloTabla.getValueAt(modeloIndex, 1).toString());
+            pesoTxt.setText(modeloTabla.getValueAt(modeloIndex, 2).toString());
+            
+            capacidadTxt.setEnabled(true);
+            pesoTxt.setEnabled(true);
+            modificarBtn.setEnabled(true);
+        }
+    }
+
+    private void configurarBusquedaAutomatica() {
+        timerBusqueda = new javax.swing.Timer(300, e -> {
+            buscarAutomaticamente();
+        });
+        timerBusqueda.setRepeats(false);
+        
+        numeroModeloTxt.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+                capacidadTxt.setEnabled(false);
+                pesoTxt.setEnabled(false);
+                modificarBtn.setEnabled(false);
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+                if (numeroModeloTxt.getText().trim().isEmpty()) {
+                    cargarTodosModelos();
+                }
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+            }
+            
+            private void iniciarBusquedaAutomatica() {
+                if (timerBusqueda.isRunning()) {
+                    timerBusqueda.restart();
+                } else {
+                    timerBusqueda.start();
+                }
+            }
+        });
+    }
+
+    private void buscarAutomaticamente() {
+        String textoBusqueda = numeroModeloTxt.getText().trim();
+        
+        if (textoBusqueda.isEmpty()) {
+            cargarTodosModelos();
+            return;
+        }
+        
+        if (textoBusqueda.length() < 2) {
+            return;
+        }
+        
+        if (sorter != null) {
+            RowFilter<DefaultTableModel, Integer> filtro = RowFilter.regexFilter("(?i)" + textoBusqueda, 0);
+            sorter.setRowFilter(filtro);
+        }
+    }
+    
+    
+    private void buscarModeloEnDB(String numeroModelo) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                mostrarErrorConexion();
+                return;
+            }
+            
+            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion WHERE UPPER(ModelNumber) = UPPER(?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, numeroModelo);
+            
+            rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                modeloSeleccionado = rs.getString("ModelNumber");
+                numeroModeloTxt.setText(modeloSeleccionado);
+                capacidadTxt.setText(String.valueOf(rs.getInt("Capacidad")));
+                pesoTxt.setText(String.valueOf(rs.getDouble("Peso")));
+                
+                capacidadTxt.setEnabled(true);
+                pesoTxt.setEnabled(true);
+                modificarBtn.setEnabled(true);
+                
+                seleccionarModeloEnTabla(modeloSeleccionado);
+                
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "✅ Modelo encontrado",
+                    "Búsqueda exitosa",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ No se encontró el modelo: " + numeroModelo,
+                    "Modelo no encontrado",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                
+                // Limpiar campos
+                capacidadTxt.setText("");
+                pesoTxt.setText("");
+                capacidadTxt.setEnabled(false);
+                pesoTxt.setEnabled(false);
+                modificarBtn.setEnabled(false);
+            }
+            
+        } catch (SQLException e) {
+            manejarErrorSQL(e, "buscar");
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+
+    private void cargarTodosModelos() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                mostrarErrorConexion();
+                return;
+            }
+            
+            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion ORDER BY ModelNumber";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            modeloTabla.setRowCount(0); 
+            
+            int contador = 0;
+            while (rs.next()) {
+                String modelo = rs.getString("ModelNumber");
+                int capacidad = rs.getInt("Capacidad");
+                double peso = rs.getDouble("Peso");
+                
+                Object[] fila = {modelo, capacidad, peso};
+                modeloTabla.addRow(fila);
+                contador++;
+            }
+            
+            jTable1.clearSelection();
+            modeloSeleccionado = "";
+            capacidadTxt.setText("");
+            pesoTxt.setText("");
+            capacidadTxt.setEnabled(false);
+            pesoTxt.setEnabled(false);
+            modificarBtn.setEnabled(false);
+            
+            if (sorter != null) {
+                sorter.setRowFilter(null);
+            }
+            
+        } catch (SQLException e) {
+            manejarErrorSQL(e, "cargar");
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+
+    private void seleccionarModeloEnTabla(String numeroModelo) {
+        for (int i = 0; i < modeloTabla.getRowCount(); i++) {
+            if (numeroModelo.equalsIgnoreCase(modeloTabla.getValueAt(i, 0).toString())) {
+                int vistaIndex = jTable1.convertRowIndexToView(i);
+                jTable1.setRowSelectionInterval(vistaIndex, vistaIndex);
+                jTable1.scrollRectToVisible(jTable1.getCellRect(vistaIndex, 0, true));
+                break;
+            }
+        }
+    }
+    
+    private boolean validarCampos() {
+        String capacidadText = capacidadTxt.getText().trim();
+        String pesoText = pesoTxt.getText().trim();
+        
+        if (capacidadText.isEmpty() || pesoText.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "❌ Todos los campos son requeridos",
+                "Error de validación",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        
+        try {
+            int capacidad = Integer.parseInt(capacidadText);
+            if (capacidad < 1 || capacidad > 1000) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Capacidad debe estar entre 1 y 1000",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                capacidadTxt.requestFocus();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "❌ Capacidad debe ser un número entero válido",
+                "Error de validación",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            capacidadTxt.requestFocus();
+            return false;
+        }
+        
+        try {
+            double peso = Double.parseDouble(pesoText);
+            if (peso < 500 || peso > 1000000) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Peso debe estar entre 500 y 1,000,000",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                pesoTxt.requestFocus();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "❌ Peso debe ser un número decimal válido",
+                "Error de validación",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            pesoTxt.requestFocus();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private void modificarModeloDB() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                mostrarErrorConexion();
+                return;
+            }
+            
+            if (!verificarExistenciaModelo(modeloSeleccionado)) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ El modelo '" + modeloSeleccionado + "' no existe",
+                    "Modelo no encontrado",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            String sql = "UPDATE ModelosAvion SET Capacidad = ?, Peso = ? WHERE UPPER(ModelNumber) = UPPER(?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, Integer.parseInt(capacidadTxt.getText().trim()));
+            pstmt.setDouble(2, Double.parseDouble(pesoTxt.getText().trim()));
+            pstmt.setString(3, modeloSeleccionado);
+            
+            int filasActualizadas = pstmt.executeUpdate();
+            
+            if (filasActualizadas > 0) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "✅ Modelo '" + modeloSeleccionado + "' modificado exitosamente",
+                    "Modificación exitosa",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                
+                cargarTodosModelos();
+                
+                if (!numeroModeloTxt.getText().trim().isEmpty()) {
+                    buscarAutomaticamente();
+                    
+                    seleccionarModeloEnTabla(modeloSeleccionado);
+                }
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ No se pudo modificar el modelo '" + modeloSeleccionado + "'",
+                    "Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+            
+        } catch (SQLException e) {
+            manejarErrorSQL(e, "modificar");
+        } finally {
+            cerrarRecursos(null, pstmt);
+        }
+    }
+    
+    private boolean verificarExistenciaModelo(String numeroModelo) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                return false;
+            }
+            
+            String sql = "SELECT 1 FROM ModelosAvion WHERE UPPER(ModelNumber) = UPPER(?)";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, numeroModelo);
+            
+            rs = pstmt.executeQuery();
+            return rs.next();
+            
+        } catch (SQLException e) {
+            logger.severe("Error al verificar existencia: " + e.toString());
+            return false;
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+    
+    private void vaciarCampos() {
+        numeroModeloTxt.setText("");
+        capacidadTxt.setText("");
+        pesoTxt.setText("");
+        modeloSeleccionado = "";
+        capacidadTxt.setEnabled(false);
+        pesoTxt.setEnabled(false);
+        modificarBtn.setEnabled(false);
+        
+        cargarTodosModelos();
+        
+        if (timerBusqueda != null && timerBusqueda.isRunning()) {
+            timerBusqueda.stop();
+        }
+    }
+    
+    private void mostrarErrorConexion() {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ Error: No hay conexión a la base de datos",
+            "Error de conexión",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void manejarErrorSQL(SQLException e, String operacion) {
+        String mensaje = "❌ Error al " + operacion + " modelo: ";
+        
+        if (e.getErrorCode() == -545) { 
+            String sqlState = e.getSQLState();
+            if ("23513".equals(sqlState)) {
+                mensaje += "Los datos no cumplen con las reglas de validación:\n";
+                
+                String errorMsg = e.getMessage();
+                if (errorMsg.contains("CHK_Capacidad_Valida")) {
+                    mensaje += "- Capacidad fuera de rango (1-1000)";
+                } else if (errorMsg.contains("CHK_Peso_Valido")) {
+                    mensaje += "- Peso fuera de rango (500-1,000,000)";
+                } else {
+                    mensaje += errorMsg;
+                }
+            } else {
+                mensaje += "Error de validación: " + e.getMessage();
+            }
+        } else {
+            mensaje += e.getMessage();
+        }
+        
+        javax.swing.JOptionPane.showMessageDialog(this,
+            mensaje,
+            "Error DB2",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        
+        logger.severe("Error SQL en " + operacion + ": " + e.toString());
+    }
+    
+    private void cerrarRecursos(ResultSet rs, PreparedStatement pstmt) {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+        } catch (SQLException e) {
+            logger.warning("Error al cerrar recursos: " + e.toString());
+        }
+    }
+    
+    
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -234,26 +676,72 @@ public class ModificarModelo extends javax.swing.JFrame {
 
     private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
         // TODO add your handling code here:
+        String numeroModelo = numeroModeloTxt.getText().trim();
+        
+        if (numeroModelo.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "❌ Por favor ingrese un número de modelo",
+                "Campo vacío",
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        buscarModeloEnDB(numeroModelo);
     }//GEN-LAST:event_buscarBtnActionPerformed
 
     private void numeroModeloTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numeroModeloTxtActionPerformed
         // TODO add your handling code here:
+        buscarBtn.doClick();
     }//GEN-LAST:event_numeroModeloTxtActionPerformed
 
     private void capacidadTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_capacidadTxtActionPerformed
         // TODO add your handling code here:
+        pesoTxt.requestFocus();
     }//GEN-LAST:event_capacidadTxtActionPerformed
 
     private void pesoTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pesoTxtActionPerformed
         // TODO add your handling code here:
+        modificarBtn.requestFocus();
     }//GEN-LAST:event_pesoTxtActionPerformed
 
     private void modificarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modificarBtnActionPerformed
         // TODO add your handling code here:
+        if (modeloSeleccionado.isEmpty()) {
+            modeloSeleccionado = numeroModeloTxt.getText().trim();
+            
+            if (modeloSeleccionado.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Por favor seleccione o busque un modelo para modificar",
+                    "Sin selección",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        
+     
+        if (!validarCampos()) {
+            return;
+        }
+        
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de modificar el modelo: " + modeloSeleccionado + "?\n\n" +
+            "Nuevos valores:\n" +
+            "Capacidad: " + capacidadTxt.getText() + "\n" +
+            "Peso: " + pesoTxt.getText(),
+            "Confirmar modificación",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+        
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            modificarModeloDB();
+        }
+        
     }//GEN-LAST:event_modificarBtnActionPerformed
 
     private void vaciarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarBtnActionPerformed
         // TODO add your handling code here:
+        vaciarCampos();
+        
     }//GEN-LAST:event_vaciarBtnActionPerformed
 
     /**
