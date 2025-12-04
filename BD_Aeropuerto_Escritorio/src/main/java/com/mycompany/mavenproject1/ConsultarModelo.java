@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
 public class ConsultarModelo extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ConsultarModelo.class.getName());
-    private javax.swing.Timer timerBusqueda; 
+   private javax.swing.Timer timerBusqueda; 
 
     public ConsultarModelo() {
         initComponents();
@@ -24,11 +24,17 @@ public class ConsultarModelo extends javax.swing.JFrame {
         configurarBusquedaAutomatica();
         setLocationRelativeTo(null);
         
-        
-        
-        
+        cargarTodosModelosInicial();
     }
 
+    private void cargarTodosModelosInicial() {
+        new Thread(() -> {
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                mostrarTodosModelosSilencioso();
+            });
+        }).start();
+    }
+    
     private void configurarTabla() {
         DefaultTableModel modeloTabla = new DefaultTableModel() {
             @Override
@@ -59,6 +65,9 @@ public class ConsultarModelo extends javax.swing.JFrame {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 iniciarBusquedaAutomatica();
+                if (buscarModeloTxt.getText().trim().isEmpty()) {
+                    mostrarTodosModelosSilencioso();
+                }
             }
             
             @Override
@@ -67,7 +76,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
             }
             
             private void iniciarBusquedaAutomatica() {
-                // Reiniciar timer cada vez que se escribe
                 if (timerBusqueda.isRunning()) {
                     timerBusqueda.restart();
                 } else {
@@ -76,9 +84,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
             }
         });
     }
-    
-    
-    
     
     private void buscarEnDB(String textoBusqueda) {
         Connection conn = null;
@@ -112,7 +117,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
         String textoBusqueda = buscarModeloTxt.getText().trim();
         
         if (textoBusqueda.isEmpty()) {
-            limpiarTabla();
+            mostrarTodosModelosSilencioso();
             return;
         }
         
@@ -122,10 +127,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
         
         buscarEnDB(textoBusqueda);
     }
-    
-    
-    
-    
     
     private void actualizarTablaConResultados(ResultSet rs, String textoBusqueda) throws SQLException {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
@@ -147,41 +148,9 @@ public class ConsultarModelo extends javax.swing.JFrame {
         }
     }
     
-   
-    
     private void limpiarTabla() {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
         modeloTabla.setRowCount(0);
-    }
-    
-    // ========== MÉTODOS AUXILIARES ==========
-    private void mostrarErrorConexion() {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "❌ Error: No hay conexión a la base de datos",
-            "Error de conexión",
-            javax.swing.JOptionPane.ERROR_MESSAGE);
-    }
-    
-    
-    private void manejarErrorSQL(SQLException e) {
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "❌ Error de base de datos: " + e.getMessage(),
-            "Error DB2",
-            javax.swing.JOptionPane.ERROR_MESSAGE);
-        logger.severe("Error SQL al buscar modelo: " + e.toString());
-    }
-    
-    private void cerrarRecursos(ResultSet rs, PreparedStatement pstmt) {
-        try {
-            if (rs != null) rs.close();
-            if (pstmt != null) pstmt.close();
-        } catch (SQLException e) {
-            logger.warning("Error al cerrar recursos: " + e.toString());
-        }
-    }
-    
-    private void mostrarMensajeInfo(String mensaje) {
-        System.out.println("ℹ️ " + mensaje);
     }
     
     private void mostrarTodosModelos() {
@@ -227,16 +196,93 @@ public class ConsultarModelo extends javax.swing.JFrame {
         }
     }
     
+    private void mostrarTodosModelosSilencioso() {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                return;
+            }
+            
+            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion ORDER BY ModelNumber";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            
+            DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
+            modeloTabla.setRowCount(0);
+            
+            int contador = 0;
+            while (rs.next()) {
+                String modelo = rs.getString("ModelNumber");
+                int capacidad = rs.getInt("Capacidad");
+                double peso = rs.getDouble("Peso");
+                
+                Object[] fila = {modelo, capacidad, peso};
+                modeloTabla.addRow(fila);
+                contador++;
+            }
+            
+        } catch (SQLException e) {
+            logger.severe("Error al cargar modelos: " + e.toString());
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+    
     private void vaciarCampos() {
         buscarModeloTxt.setText("");
-        limpiarTabla();
+        mostrarTodosModelosSilencioso(); 
         buscarModeloTxt.requestFocus();
         
         if (timerBusqueda != null && timerBusqueda.isRunning()) {
             timerBusqueda.stop();
         }
     }
+    
+    private void mostrarErrorConexion() {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ Error: No hay conexión a la base de datos",
+            "Error de conexión",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void manejarErrorSQL(SQLException e) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ Error de base de datos: " + e.getMessage(),
+            "Error DB2",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        logger.severe("Error SQL al buscar modelo: " + e.toString());
+    }
+    
+    private void cerrarRecursos(ResultSet rs, PreparedStatement pstmt) {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+        } catch (SQLException e) {
+            logger.warning("Error al cerrar recursos: " + e.toString());
+        }
+    }
+    
+    private void mostrarMensajeInfo(String mensaje) {
+        System.out.println("ℹ️ " + mensaje);
+    }
+    
+    private void ejecutarBusqueda() {
+        String texto = buscarModeloTxt.getText().trim();
+        
+        if (texto.isEmpty()) {
+            mostrarTodosModelos();
+        } else {
+           
+            buscarEnDB(texto);
+        }
+    }
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -255,6 +301,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -292,10 +339,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(323, 323, 323)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(46, 46, 46)
                 .addComponent(jLabel2)
                 .addGap(64, 64, 64)
@@ -305,6 +348,10 @@ public class ConsultarModelo extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
                 .addComponent(buscarBtn)
                 .addGap(64, 64, 64))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(323, 323, 323)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -317,7 +364,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
                     .addComponent(buscarModeloTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buscarBtn)
                     .addComponent(vaciarBtn))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -335,20 +382,36 @@ public class ConsultarModelo extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(jTable1);
 
+        jButton1.setBackground(new java.awt.Color(102, 102, 102));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton1.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-volver-24.png")); // NOI18N
+        jButton1.setText("Regresar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
                 .addContainerGap())
         );
 
@@ -372,17 +435,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
 
     private void buscarModeloTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarModeloTxtActionPerformed
         // TODO add your handling code here:
-         String numeroModelo = buscarModeloTxt.getText().trim();
-        
-        if (numeroModelo.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                "❌ Por favor ingrese un número de modelo",
-                "Campo vacío",
-                javax.swing.JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        buscarEnDB(numeroModelo);
+          ejecutarBusqueda();
     }//GEN-LAST:event_buscarModeloTxtActionPerformed
 
     private void vaciarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarBtnActionPerformed
@@ -392,8 +445,18 @@ public class ConsultarModelo extends javax.swing.JFrame {
 
     private void buscarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarBtnActionPerformed
         // TODO add your handling code here:
-        buscarBtn.doClick();
+        ejecutarBusqueda();
     }//GEN-LAST:event_buscarBtnActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+         MenuModelos menu = new MenuModelos();   // crear ventana principal
+       
+    menu.setVisible(true);                // mostrar
+
+    this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -423,6 +486,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buscarBtn;
     private javax.swing.JTextField buscarModeloTxt;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
