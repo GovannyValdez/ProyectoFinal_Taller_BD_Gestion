@@ -88,7 +88,7 @@
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="eliminarEmpleado" min="-2" pref="35" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="buscarEmpleado" max="32767" attributes="0"/>
+                  <Component id="buscarEmpleado" pref="35" max="32767" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="modificarEmpleado1" min="-2" pref="37" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
