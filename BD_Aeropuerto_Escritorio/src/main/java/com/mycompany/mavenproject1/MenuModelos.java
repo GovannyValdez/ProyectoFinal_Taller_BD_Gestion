@@ -29,34 +29,97 @@ public class MenuModelos extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        agregarBtn = new javax.swing.JButton();
+        eliminarBtn = new javax.swing.JButton();
+        consultaBtn = new javax.swing.JButton();
+        modificarBtn = new javax.swing.JButton();
+        regresarBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(60, 8, 137));
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
 
-        jButton1.setText("jButton1");
+        agregarBtn.setBackground(new java.awt.Color(0, 153, 51));
+        agregarBtn.setText("Agregar modelo");
+        agregarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                agregarBtnActionPerformed(evt);
+            }
+        });
+
+        eliminarBtn.setBackground(new java.awt.Color(153, 51, 0));
+        eliminarBtn.setText("Eliminar modelo");
+        eliminarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eliminarBtnActionPerformed(evt);
+            }
+        });
+
+        consultaBtn.setBackground(new java.awt.Color(0, 153, 153));
+        consultaBtn.setForeground(new java.awt.Color(0, 0, 0));
+        consultaBtn.setText("Consultar modelo");
+        consultaBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consultaBtnActionPerformed(evt);
+            }
+        });
+
+        modificarBtn.setBackground(new java.awt.Color(255, 153, 0));
+        modificarBtn.setForeground(new java.awt.Color(0, 0, 0));
+        modificarBtn.setText("Modificar modelo");
+        modificarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modificarBtnActionPerformed(evt);
+            }
+        });
+
+        regresarBtn.setBackground(new java.awt.Color(255, 255, 255));
+        regresarBtn.setForeground(new java.awt.Color(0, 0, 0));
+        regresarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-volver-24.png")); // NOI18N
+        regresarBtn.setText("Regresar");
+        regresarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                regresarBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(61, 61, 61)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(57, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(agregarBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(eliminarBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(consultaBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                            .addComponent(modificarBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(regresarBtn)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(48, 48, 48)
-                .addComponent(jButton1)
-                .addContainerGap(188, Short.MAX_VALUE))
+                .addComponent(agregarBtn)
+                .addGap(18, 18, 18)
+                .addComponent(eliminarBtn)
+                .addGap(18, 18, 18)
+                .addComponent(consultaBtn)
+                .addGap(18, 18, 18)
+                .addComponent(modificarBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(regresarBtn)
+                .addGap(15, 15, 15))
         );
 
-        jPanel2.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel2.setBackground(new java.awt.Color(51, 0, 153));
 
         jLabel1.setFont(new java.awt.Font("Yu Gothic UI", 1, 24)); // NOI18N
         jLabel1.setText("Modelos de avion");
@@ -68,7 +131,7 @@ public class MenuModelos extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(127, 127, 127)
                 .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(134, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -96,6 +159,54 @@ public class MenuModelos extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void agregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_agregarBtnActionPerformed
+        // TODO add your handling code here:
+        AgregarModelo ventana = new AgregarModelo();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
+
+        this.dispose();
+    }//GEN-LAST:event_agregarBtnActionPerformed
+
+    private void eliminarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarBtnActionPerformed
+        // TODO add your handling code here:
+        EliminarModelo ventana = new EliminarModelo();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
+
+        this.dispose();
+    }//GEN-LAST:event_eliminarBtnActionPerformed
+
+    private void consultaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consultaBtnActionPerformed
+        // TODO add your handling code here:
+        ConsultarModelo ventana = new ConsultarModelo();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
+
+        this.dispose();
+    }//GEN-LAST:event_consultaBtnActionPerformed
+
+    private void modificarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modificarBtnActionPerformed
+        // TODO add your handling code here:
+        ModificarModelo ventana = new ModificarModelo();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
+
+        this.dispose();
+        
+        
+    }//GEN-LAST:event_modificarBtnActionPerformed
+
+    private void regresarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regresarBtnActionPerformed
+        // TODO add your handling code here:
+        
+          MenuInicio menu = new MenuInicio();   // crear ventana principal
+       
+    menu.setVisible(true);                // mostrar
+
+    this.dispose();
+    }//GEN-LAST:event_regresarBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -122,9 +233,13 @@ public class MenuModelos extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton agregarBtn;
+    private javax.swing.JButton consultaBtn;
+    private javax.swing.JButton eliminarBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JButton modificarBtn;
+    private javax.swing.JButton regresarBtn;
     // End of variables declaration//GEN-END:variables
 }
