@@ -15,7 +15,7 @@ public class AgregarEmpleado extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AgregarEmpleado.class.getName());
 
     
-    // Configuración de conexión DB2 - AJUSTA ESTOS VALORES
+    
     private static final String DB_URL = "jdbc:db2://localhost:25000/BD_AEROP";
     private static final String DB_USER = "db2admin";
     private static final String DB_PASSWORD = "Govanny27";
@@ -365,7 +365,7 @@ public class AgregarEmpleado extends javax.swing.JFrame {
     
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
         // TODO add your handling code here:
-        // Validar campos obligatorios
+        
         if (!validarCampos()) {
             return;
         }
@@ -497,7 +497,7 @@ public class AgregarEmpleado extends javax.swing.JFrame {
         logger.log(java.util.logging.Level.SEVERE, "Error DB2: " + sqlState, e);
         
         if ("23505".equals(sqlState)) {
-            // Violación de constraint UNIQUE (duplicado)
+            
             if (mensajeError.contains("UNQ_MEMBRESIA")) {
                 JOptionPane.showMessageDialog(this, 
                     "❌ El número de membresía ya existe", 
@@ -510,19 +510,19 @@ public class AgregarEmpleado extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
             }
         } else if ("23514".equals(sqlState)) {
-            // Violación de constraint CHECK
+            
             JOptionPane.showMessageDialog(this, 
                 "❌ El salario no puede ser negativo", 
                 "Error de Validación", 
                 JOptionPane.ERROR_MESSAGE);
         } else if ("23502".equals(sqlState)) {
-            // Violación de NOT NULL
+            
             JOptionPane.showMessageDialog(this, 
                 "❌ Todos los campos obligatorios deben ser llenados", 
                 "Error de Validación", 
                 JOptionPane.ERROR_MESSAGE);
         } else {
-            // Error genérico de DB2
+            
             JOptionPane.showMessageDialog(this, 
                 "❌ Error de base de datos: " + e.getMessage(), 
                 "Error DB2", 

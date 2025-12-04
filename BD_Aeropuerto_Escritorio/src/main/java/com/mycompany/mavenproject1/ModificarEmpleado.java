@@ -27,7 +27,6 @@ public class ModificarEmpleado extends javax.swing.JFrame {
     private Timer timerFiltro;
     private static final int DELAY_FILTRO = 300;
     
-    // SSN del empleado que se está modificando
     private String ssnActual;
 
     public ModificarEmpleado() {
@@ -37,7 +36,7 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         configurarFiltroTiempoReal();
         cargarTodosEmpleados();
         
-        // Deshabilitar campos hasta que se seleccione un empleado
+       
         habilitarCampos(false);
         modificarBtn.setEnabled(false);
     }
@@ -97,10 +96,8 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         sorter = new TableRowSorter<>(modelo);
         jTable1.setRowSorter(sorter);
         
-        // Configurar selección de fila
         jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        // Listener para cuando seleccionan una fila en la tabla
         jTable1.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int filaSeleccionada = jTable1.getSelectedRow();
@@ -129,7 +126,6 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         
         ssnActual = (String) modelo.getValueAt(modeloIndex, 0);
         
-        // Autocompletar campos con los datos de la fila seleccionada
         ssnTxt.setText(ssnActual);
         nombreTxt.setText((String) modelo.getValueAt(modeloIndex, 1));
         apellidoPaTxt.setText((String) modelo.getValueAt(modeloIndex, 2));
@@ -137,7 +133,6 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         direccionTxt.setText((String) modelo.getValueAt(modeloIndex, 4));
         telefonoTxt.setText((String) modelo.getValueAt(modeloIndex, 5));
         
-        // Limpiar formato de salario ($ y comas)
         String salarioStr = (String) modelo.getValueAt(modeloIndex, 6);
         if (salarioStr != null && salarioStr.startsWith("$")) {
             salarioStr = salarioStr.replace("$", "").replace(",", "");
@@ -146,11 +141,9 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         
         membresiaTxt.setText((String) modelo.getValueAt(modeloIndex, 7));
         
-        // Habilitar campos para edición
         habilitarCampos(true);
         modificarBtn.setEnabled(true);
         
-        // Mostrar mensaje
         setTitle("Modificar Empleado - Editando: " + ssnActual);
     }
     
@@ -232,7 +225,6 @@ public class ModificarEmpleado extends javax.swing.JFrame {
             if (rs.next()) {
                 ssnActual = ssn;
                 
-                // Autocompletar campos
                 ssnTxt.setText(rs.getString("ssn"));
                 nombreTxt.setText(rs.getString("nombre"));
                 apellidoPaTxt.setText(rs.getString("apellido_paterno"));
@@ -242,11 +234,10 @@ public class ModificarEmpleado extends javax.swing.JFrame {
                 salarioTxt.setText(rs.getBigDecimal("salario").toString());
                 membresiaTxt.setText(rs.getString("numero_membresia_sindicato"));
                 
-                // Habilitar campos
                 habilitarCampos(true);
                 modificarBtn.setEnabled(true);
                 
-                // Buscar y seleccionar en la tabla
+               
                 seleccionarEnTabla(ssn);
                 
                 return true;
@@ -387,9 +378,7 @@ public class ModificarEmpleado extends javax.swing.JFrame {
                     "Modificación exitosa",
                     JOptionPane.INFORMATION_MESSAGE);
                 
-                // Actualizar tabla
                 cargarTodosEmpleados();
-                // Seleccionar el empleado modificado
                 seleccionarEnTabla(ssnActual);
                 
                 return true;
@@ -402,7 +391,6 @@ public class ModificarEmpleado extends javax.swing.JFrame {
             }
             
         } catch (SQLException e) {
-            // Manejar error de unicidad en membresía
             if ("23505".equals(e.getSQLState())) {
                 JOptionPane.showMessageDialog(this,
                     "❌ Error: El número de membresía ya existe.\n" +
@@ -458,10 +446,8 @@ public class ModificarEmpleado extends javax.swing.JFrame {
         habilitarCampos(false);
         modificarBtn.setEnabled(false);
         
-        // Limpiar selección en tabla
         jTable1.clearSelection();
         
-        // Limpiar filtro
         if (sorter != null) {
             sorter.setRowFilter(null);
         }
@@ -782,9 +768,9 @@ public class ModificarEmpleado extends javax.swing.JFrame {
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         
-           MenuEmpleados menu = new MenuEmpleados();   // crear ventana principal
+           MenuEmpleados menu = new MenuEmpleados();   
        
-    menu.setVisible(true);                // mostrar
+    menu.setVisible(true);               
 
     this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed

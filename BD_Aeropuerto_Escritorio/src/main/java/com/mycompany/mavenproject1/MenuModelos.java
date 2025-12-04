@@ -201,9 +201,9 @@ public class MenuModelos extends javax.swing.JFrame {
     private void regresarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_regresarBtnActionPerformed
         // TODO add your handling code here:
         
-          MenuInicio menu = new MenuInicio();   // crear ventana principal
+          MenuInicio menu = new MenuInicio();   
        
-    menu.setVisible(true);                // mostrar
+    menu.setVisible(true);                
 
     this.dispose();
     }//GEN-LAST:event_regresarBtnActionPerformed

@@ -185,7 +185,7 @@ public class InicioSesion extends javax.swing.JFrame {
     menu.setLocationRelativeTo(null);
     menu.setVisible(true);
 
-    this.dispose(); // Cierra la ventana InicioSesion
+    this.dispose(); 
 }
 
     

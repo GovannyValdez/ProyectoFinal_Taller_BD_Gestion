@@ -22,11 +22,11 @@ public class MenuEmpleados extends javax.swing.JFrame {
     }
 
     public void cerrarTodasLasVentanasExceptoActual() {
-    // Obtener todas las ventanas abiertas
+   
     Window[] windows = Window.getWindows();
     
     for (Window window : windows) {
-        // Cerrar todas las ventanas excepto esta misma
+        
         if (window != this && window.isVisible()) {
             window.dispose();
         }
@@ -191,7 +191,7 @@ public class MenuEmpleados extends javax.swing.JFrame {
 
     private void agregarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_agregarEmpleadoActionPerformed
         // TODO add your handling code here:
-        // Crear y mostrar el panel AgregarEmpleado
+        
         AgregarEmpleado ventana = new AgregarEmpleado();
         ventana.setLocationRelativeTo(null);
         ventana.setVisible(true);
@@ -229,7 +229,7 @@ public class MenuEmpleados extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-                   MenuInicio menu = new MenuInicio();   // crear ventana principal
+                   MenuInicio menu = new MenuInicio();   
        
     menu.setVisible(true);                // mostrar
 

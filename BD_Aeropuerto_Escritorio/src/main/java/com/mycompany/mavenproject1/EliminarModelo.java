@@ -22,7 +22,7 @@ public class EliminarModelo extends javax.swing.JFrame {
     public EliminarModelo() {
         initComponents();
         //configurarTabla();
-       // configurarBusquedaAutomatica();
+        //configurarBusquedaAutomatica();
     }
 
     /**

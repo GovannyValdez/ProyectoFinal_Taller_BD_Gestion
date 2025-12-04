@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
 public class ConsultarModelo extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ConsultarModelo.class.getName());
-    private javax.swing.Timer timerBusqueda; // Timer para buscar después de pausa
+    private javax.swing.Timer timerBusqueda; 
 
     public ConsultarModelo() {
         initComponents();
@@ -29,7 +29,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
         
     }
 
-    // ========== CONFIGURAR TABLA ==========
     private void configurarTabla() {
         DefaultTableModel modeloTabla = new DefaultTableModel() {
             @Override
@@ -45,15 +44,12 @@ public class ConsultarModelo extends javax.swing.JFrame {
         jTable1.setModel(modeloTabla);
     }
 
-    // ========== CONFIGURAR BÚSQUEDA AUTOMÁTICA ==========
     private void configurarBusquedaAutomatica() {
-        // Crear timer que se activa 300ms después de dejar de escribir
         timerBusqueda = new javax.swing.Timer(300, e -> {
             buscarAutomaticamente();
         });
-        timerBusqueda.setRepeats(false); // Solo se ejecuta una vez
+        timerBusqueda.setRepeats(false); 
         
-        // Agregar DocumentListener al campo de búsqueda
         buscarModeloTxt.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -84,7 +80,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
     
     
     
-    // ========== MÉTODO PARA BUSCAR EN BASE DE DATOS ==========
     private void buscarEnDB(String textoBusqueda) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -98,14 +93,12 @@ public class ConsultarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            // Búsqueda por coincidencia parcial (LIKE)
             String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion WHERE UPPER(ModelNumber) LIKE ? ORDER BY ModelNumber";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, "%" + textoBusqueda.toUpperCase() + "%");
             
             rs = pstmt.executeQuery();
             
-            // Actualizar tabla con resultados
             actualizarTablaConResultados(rs, textoBusqueda);
             
         } catch (SQLException e) {
@@ -115,22 +108,18 @@ public class ConsultarModelo extends javax.swing.JFrame {
         }
     }
 
-    // ========== BÚSQUEDA AUTOMÁTICA ==========
     private void buscarAutomaticamente() {
         String textoBusqueda = buscarModeloTxt.getText().trim();
         
-        // Si está vacío, limpiar tabla
         if (textoBusqueda.isEmpty()) {
             limpiarTabla();
             return;
         }
         
-        // Si tiene menos de 2 caracteres, no buscar (opcional)
         if (textoBusqueda.length() < 2) {
             return;
         }
         
-        // Buscar en la base de datos
         buscarEnDB(textoBusqueda);
     }
     
@@ -140,7 +129,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
     
     private void actualizarTablaConResultados(ResultSet rs, String textoBusqueda) throws SQLException {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
-        modeloTabla.setRowCount(0); // Limpiar tabla
+        modeloTabla.setRowCount(0); 
         
         int contador = 0;
         while (rs.next()) {
@@ -153,7 +142,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
             contador++;
         }
         
-        // Mostrar mensaje en la barra de estado si quieres (opcional)
         if (contador == 0) {
             mostrarMensajeInfo("No se encontraron modelos que coincidan con: " + textoBusqueda);
         }
@@ -161,7 +149,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
     
    
     
-    // ========== LIMPIAR TABLA ==========
     private void limpiarTabla() {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
         modeloTabla.setRowCount(0);
@@ -194,11 +181,9 @@ public class ConsultarModelo extends javax.swing.JFrame {
     }
     
     private void mostrarMensajeInfo(String mensaje) {
-        // Opcional: Puedes mostrar un mensaje en la interfaz o en consola
         System.out.println("ℹ️ " + mensaje);
     }
     
-    // ========== MÉTODO PARA MOSTRAR TODOS LOS MODELOS (OPCIONAL) ==========
     private void mostrarTodosModelos() {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -247,7 +232,6 @@ public class ConsultarModelo extends javax.swing.JFrame {
         limpiarTabla();
         buscarModeloTxt.requestFocus();
         
-        // Detener timer si está activo
         if (timerBusqueda != null && timerBusqueda.isRunning()) {
             timerBusqueda.stop();
         }

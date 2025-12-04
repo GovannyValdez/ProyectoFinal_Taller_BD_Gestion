@@ -26,17 +26,14 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EliminarEmpleado.class.getName());
 
-    // Configuración DB2
     private static final String DB_URL = "jdbc:db2://localhost:25000/BD_AEROP";
     private static final String DB_USER = "db2admin";
     private static final String DB_PASSWORD = "Govanny27";
     
-    // Modelo de tabla y sorter
     private DefaultTableModel modelo;
     private TableRowSorter<DefaultTableModel> sorter;
     private String ssnSeleccionado;
     
-    // Timer para filtrado
     private Timer timerFiltro;
     private static final int DELAY_FILTRO = 300;
 
@@ -44,20 +41,17 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     initComponents();
     setLocationRelativeTo(null);
     
-    // Cambia el orden: primero configurar, luego cargar
     inicializarTabla();
     configurarFiltroTiempoReal();
-    cargarTodosEmpleados();  // Este debe ir DESPUÉS
+    cargarTodosEmpleados();  
     
      mostrarInfoTabla();
 }
     
     private void configurarFiltroTiempoReal() {
-        // Timer para delay en filtrado
         timerFiltro = new Timer(DELAY_FILTRO, e -> aplicarFiltroTiempoReal());
         timerFiltro.setRepeats(false);
         
-        // Agregar listeners a los campos que YA EXISTEN en el diseño
         ssnTxt.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -96,7 +90,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     
     System.out.println("Campo texto: '" + texto + "'");
     
-    // Si el campo está vacío o tiene texto placeholder, retorna null
     if (texto.isEmpty() || 
         texto.equals("Ingresar...") || 
         texto.equals("Ej: 123-45-6789") || 
@@ -109,7 +102,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
 }
     
     private void inicializarTabla() {
-    // Columnas de la tabla
     String[] columnas = {
         "SSN", "Nombre", "Apellido Paterno", "Apellido Materno",
         "Dirección", "Teléfono", "Salario", "Número Membresía"
@@ -122,19 +114,14 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         }
     };
     
-    // Asignar modelo a jTable1
     jTable1.setModel(modelo);
     
-    // SOLO UN SORTER - NO LOS DOS
     sorter = new TableRowSorter<>(modelo);
     jTable1.setRowSorter(sorter);
     
-    // QUITA ESTA LÍNEA: jTable1.setAutoCreateRowSorter(true);
     
-    // Configurar selección única
     jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     
-    // Listener para selección
     jTable1.getSelectionModel().addListSelectionListener(e -> {
         if (!e.getValueIsAdjusting()) {
             int filaSeleccionada = jTable1.getSelectedRow();
@@ -147,12 +134,10 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         }
     });
     
-    // Ajustar anchos
     ajustarAnchosColumnas();
 }
     
     private void ajustarAnchosColumnas() {
-        // Solo ajusta propiedades de columnas que YA EXISTEN
         if (jTable1.getColumnModel().getColumnCount() >= 8) {
             jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
             jTable1.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -190,7 +175,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
                     }
                 }
                 
-                // Filtrar por nombre
                 if (mostrar && nombreFiltro != null && !nombreFiltro.trim().isEmpty()) {
                     String nombre = (String) entry.getValue(1);
                     String apellidoP = (String) entry.getValue(2);
@@ -235,7 +219,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     ResultSet rs = null;
     
     try {
-        // Solo limpiar el modelo
         modelo.setRowCount(0);
         ssnSeleccionado = null;
         eliminarTxt.setEnabled(false);
@@ -299,7 +282,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         
         
         
-        // Obtener nombre del empleado seleccionado
         String nombreEmpleado = "";
         for (int i = 0; i < modelo.getRowCount(); i++) {
             if (ssn.equals(modelo.getValueAt(i, 0))) {
@@ -308,7 +290,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
             }
         }
         
-        // Confirmación
         int confirmacion = JOptionPane.showConfirmDialog(this,
             "¿Eliminar al empleado?\n\n" +
             "SSN: " + ssn + "\n" +

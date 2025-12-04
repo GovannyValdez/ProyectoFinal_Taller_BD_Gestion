@@ -48,7 +48,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         timerFiltro = new Timer(DELAY_FILTRO, e -> aplicarFiltroTiempoReal());
         timerFiltro.setRepeats(false);
         
-        // Filtro en tiempo real para SSN
+        
         filtrarTxt.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -56,7 +56,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
             }
         });
         
-        // Filtro en tiempo real para Nombre
+        
         filtrarNombreTxt.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -96,14 +96,14 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         
         jTable1.setModel(modelo);
         
-        // Configurar TableRowSorter para filtrado en memoria
+        
         sorter = new TableRowSorter<>(modelo);
         jTable1.setRowSorter(sorter);
         
-        // Desactivar autoCreateRowSorter para evitar conflictos
+        
         jTable1.setAutoCreateRowSorter(false);
         
-        // Ajustar anchos de columnas
+       
         ajustarAnchosColumnas();
     }
     
@@ -127,13 +127,11 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
                 boolean cumpleSSN = true;
                 boolean cumpleNombre = true;
                 
-                // Filtrar por SSN
                 if (!ssnFiltro.isEmpty()) {
                     String ssn = (String) entry.getValue(0);
                     cumpleSSN = ssn != null && ssn.toLowerCase().contains(ssnFiltro.toLowerCase());
                 }
                 
-                // Filtrar por nombre (busca en nombre y apellidos)
                 if (!nombreFiltro.isEmpty()) {
                     String nombre = (String) entry.getValue(1);
                     String apellidoP = (String) entry.getValue(2);
@@ -161,7 +159,6 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
         
         sorter.setRowFilter(filtro);
         
-        // Actualizar contador en título
         int visible = jTable1.getRowCount();
         int total = modelo.getRowCount();
         setTitle("Consultar Empleado - Mostrando " + visible + " de " + total + " empleados");
@@ -450,8 +447,7 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
     }//GEN-LAST:event_filtrarBtnActionPerformed
 
     private void vaciarSsnBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarSsnBtnActionPerformed
-        // TODO add your handling code here:
-        // Vaciar campo SSN
+        
         filtrarTxt.setText("");
         filtrarTxt.requestFocus();
         aplicarFiltroTiempoReal(); // Actualizar filtro
@@ -469,7 +465,6 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
 
     private void vaciarNombreBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarNombreBtnActionPerformed
         // TODO add your handling code here:
-        // Vaciar campo Nombre
         filtrarNombreTxt.setText("");
         filtrarNombreTxt.requestFocus();
         aplicarFiltroTiempoReal(); // Actualizar filtro
@@ -477,7 +472,6 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
 
     private void mostrarTodoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostrarTodoBtnActionPerformed
         // TODO add your handling code here:
-        // Mostrar todos los empleados
         filtrarTxt.setText("");
         filtrarNombreTxt.setText("");
         
@@ -489,7 +483,6 @@ public class ConsultarEmpleado extends javax.swing.JFrame {
     }//GEN-LAST:event_mostrarTodoBtnActionPerformed
 
     
-    // Métodos auxiliares
 
     private void manejarError(Exception e) {
         logger.log(Level.SEVERE, "Error", e);

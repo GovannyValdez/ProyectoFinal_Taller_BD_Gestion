@@ -75,6 +75,11 @@ public class MenuInicio extends javax.swing.JFrame {
         });
 
         jButton2.setText("Modelos");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Vuelos");
 
@@ -166,6 +171,15 @@ public class MenuInicio extends javax.swing.JFrame {
 
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        MenuModelos ventana = new MenuModelos();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
+
+        this.dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments

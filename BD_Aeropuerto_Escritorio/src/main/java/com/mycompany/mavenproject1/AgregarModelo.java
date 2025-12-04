@@ -274,12 +274,12 @@ public class AgregarModelo extends javax.swing.JFrame {
     private void agregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_agregarBtnActionPerformed
         // TODO add your handling code here:
          try {
-            // SACAR INFORMACIÓN DE LOS TEXT FIELDS
+            
             String numeroModelo = numModeloTxt.getText().trim();
             String capacidadText = capacidadTxt.getText().trim();
             String pesoText = pesoTxt.getText().trim();
             
-            // Validar campos vacíos
+            
             if (numeroModelo.isEmpty() || capacidadText.isEmpty() || pesoText.isEmpty()) {
                 javax.swing.JOptionPane.showMessageDialog(this,
                     "❌ Todos los campos son requeridos",
@@ -288,7 +288,7 @@ public class AgregarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            // Validar número de modelo (mínimo 2 caracteres, solo letras/números/guiones)
+            
             if (numeroModelo.length() < 2) {
                 javax.swing.JOptionPane.showMessageDialog(this,
                     "❌ Número de modelo debe tener al menos 2 caracteres",
@@ -305,7 +305,6 @@ public class AgregarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            // Convertir y validar capacidad (1-1000)
             int capacidad;
             try {
                 capacidad = Integer.parseInt(capacidadText);
@@ -324,7 +323,6 @@ public class AgregarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            // Convertir y validar peso (500-1,000,000)
             double peso;
             try {
                 peso = Double.parseDouble(pesoText);
@@ -343,7 +341,6 @@ public class AgregarModelo extends javax.swing.JFrame {
                 return;
             }
             
-            // Insertar en la base de datos
             boolean exito = insertarModeloDB(numeroModelo, capacidad, peso);
             
             if (exito) {
@@ -352,7 +349,6 @@ public class AgregarModelo extends javax.swing.JFrame {
                     "Éxito",
                     javax.swing.JOptionPane.INFORMATION_MESSAGE);
                 
-                // Limpiar campos después de agregar
                 vaciarCampos();
             }
             
