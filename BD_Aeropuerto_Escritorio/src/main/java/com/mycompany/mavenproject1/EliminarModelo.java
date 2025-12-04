@@ -2,21 +2,27 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.mavenproject1;
 
-/**
- *
- * @author govan
- */
+package com.mycompany.mavenproject1;
+import DB2_Conexion.Conexion_DB;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+
 public class EliminarModelo extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EliminarModelo.class.getName());
+    private javax.swing.Timer timerBusqueda;
+    private String modeloSeleccionado = ""; // Guardar el modelo seleccionado
 
-    /**
-     * Creates new form EliminarModelo
-     */
     public EliminarModelo() {
         initComponents();
+        //configurarTabla();
+       // configurarBusquedaAutomatica();
     }
 
     /**

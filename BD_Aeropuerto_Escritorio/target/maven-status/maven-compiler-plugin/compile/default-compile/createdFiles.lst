@@ -19,6 +19,7 @@ com\mycompany\mavenproject1\MenuEmpleados$6.class
 com\mycompany\mavenproject1\ConsultarEmpleado$2.class
 com\mycompany\mavenproject1\EliminarEmpleado.class
 com\mycompany\mavenproject1\MenuEmpleados$3.class
+com\mycompany\mavenproject1\EliminarModelo$1.class
 com\mycompany\mavenproject1\ModificarEmpleado$4.class
 com\mycompany\mavenproject1\AgregarEmpleado$7.class
 com\mycompany\mavenproject1\AgregarEmpleado$10.class
@@ -27,6 +28,7 @@ com\mycompany\mavenproject1\MenuModelos$2.class
 com\mycompany\mavenproject1\AgregarModelo$2.class
 com\mycompany\mavenproject1\ConsultarEmpleado$9.class
 com\mycompany\mavenproject1\ConsultarEmpleado$6.class
+com\mycompany\mavenproject1\ModificarModelo$1.class
 com\mycompany\mavenproject1\MenuEmpleados$5.class
 com\mycompany\mavenproject1\ModificarEmpleado$1.class
 com\mycompany\mavenproject1\ModificarEmpleado$7.class
@@ -46,6 +48,7 @@ com\mycompany\mavenproject1\AgregarEmpleado$11.class
 com\mycompany\mavenproject1\InicioSesion$3.class
 com\mycompany\mavenproject1\ConsultarModelo$1.class
 com\mycompany\mavenproject1\MenuEmpleados$1.class
+com\mycompany\mavenproject1\EliminarModelo$3.class
 com\mycompany\mavenproject1\ConsultarEmpleado$7.class
 com\mycompany\mavenproject1\ConsultarModelo$4.class
 com\mycompany\mavenproject1\EliminarEmpleado$6.class
@@ -79,6 +82,7 @@ com\mycompany\mavenproject1\AgregarEmpleado.class
 com\mycompany\mavenproject1\EliminarEmpleado$2.class
 com\mycompany\mavenproject1\ConsultarEmpleado$10.class
 com\mycompany\mavenproject1\EliminarEmpleado$10.class
+com\mycompany\mavenproject1\EliminarModelo$2.class
 DB2_Conexion\PruebaConexion.class
 com\mycompany\mavenproject1\ModificarEmpleado$9.class
 com\mycompany\mavenproject1\ConsultarEmpleado$8.class
