@@ -22,6 +22,11 @@ public class ConsultarModelo extends javax.swing.JFrame {
         initComponents();
         configurarTabla();
         configurarBusquedaAutomatica();
+        setLocationRelativeTo(null);
+        
+        
+        
+        
     }
 
     // ========== CONFIGURAR TABLA ==========
@@ -75,25 +80,10 @@ public class ConsultarModelo extends javax.swing.JFrame {
             }
         });
     }
-
-    // ========== BÚSQUEDA AUTOMÁTICA ==========
-    private void buscarAutomaticamente() {
-        String textoBusqueda = buscarModeloTxt.getText().trim();
-        
-        // Si está vacío, limpiar tabla
-        if (textoBusqueda.isEmpty()) {
-            limpiarTabla();
-            return;
-        }
-        
-        // Si tiene menos de 2 caracteres, no buscar (opcional)
-        if (textoBusqueda.length() < 2) {
-            return;
-        }
-        
-        // Buscar en la base de datos
-        buscarEnDB(textoBusqueda);
-    }
+    
+    
+    
+    
     // ========== MÉTODO PARA BUSCAR EN BASE DE DATOS ==========
     private void buscarEnDB(String textoBusqueda) {
         Connection conn = null;
@@ -124,6 +114,30 @@ public class ConsultarModelo extends javax.swing.JFrame {
             cerrarRecursos(rs, pstmt);
         }
     }
+
+    // ========== BÚSQUEDA AUTOMÁTICA ==========
+    private void buscarAutomaticamente() {
+        String textoBusqueda = buscarModeloTxt.getText().trim();
+        
+        // Si está vacío, limpiar tabla
+        if (textoBusqueda.isEmpty()) {
+            limpiarTabla();
+            return;
+        }
+        
+        // Si tiene menos de 2 caracteres, no buscar (opcional)
+        if (textoBusqueda.length() < 2) {
+            return;
+        }
+        
+        // Buscar en la base de datos
+        buscarEnDB(textoBusqueda);
+    }
+    
+    
+    
+    
+    
     private void actualizarTablaConResultados(ResultSet rs, String textoBusqueda) throws SQLException {
         DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
         modeloTabla.setRowCount(0); // Limpiar tabla
@@ -145,16 +159,7 @@ public class ConsultarModelo extends javax.swing.JFrame {
         }
     }
     
-    private void vaciarCampos() {
-        buscarModeloTxt.setText("");
-        limpiarTabla();
-        buscarModeloTxt.requestFocus();
-        
-        // Detener timer si está activo
-        if (timerBusqueda != null && timerBusqueda.isRunning()) {
-            timerBusqueda.stop();
-        }
-    }
+   
     
     // ========== LIMPIAR TABLA ==========
     private void limpiarTabla() {
@@ -234,6 +239,17 @@ public class ConsultarModelo extends javax.swing.JFrame {
             manejarErrorSQL(e);
         } finally {
             cerrarRecursos(rs, pstmt);
+        }
+    }
+    
+    private void vaciarCampos() {
+        buscarModeloTxt.setText("");
+        limpiarTabla();
+        buscarModeloTxt.requestFocus();
+        
+        // Detener timer si está activo
+        if (timerBusqueda != null && timerBusqueda.isRunning()) {
+            timerBusqueda.stop();
         }
     }
 
