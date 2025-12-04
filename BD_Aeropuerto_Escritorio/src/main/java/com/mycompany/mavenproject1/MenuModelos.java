@@ -17,6 +17,7 @@ public class MenuModelos extends javax.swing.JFrame {
      */
     public MenuModelos() {
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     /**

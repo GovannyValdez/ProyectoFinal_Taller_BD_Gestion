@@ -15,6 +15,7 @@ public class AgregarModelo extends javax.swing.JFrame {
 
     public AgregarModelo() {
         initComponents();
+        setLocationRelativeTo(null);
     }
 
     // ========== MÉTODO PARA INSERTAR EN BASE DE DATOS ==========
