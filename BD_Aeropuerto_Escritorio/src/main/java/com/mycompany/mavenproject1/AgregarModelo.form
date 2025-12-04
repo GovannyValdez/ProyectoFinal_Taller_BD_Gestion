@@ -48,22 +48,22 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace pref="121" max="32767" attributes="0"/>
-                  <Component id="jLabel1" min="-2" pref="237" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-              </Group>
               <Group type="102" attributes="0">
                   <EmptySpace min="-2" pref="66" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
                       <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                      <Component id="numModeloBtn" alignment="0" max="32767" attributes="0"/>
-                      <Component id="capacidadBtn" alignment="0" max="32767" attributes="0"/>
-                      <Component id="pesoBtn" alignment="0" pref="163" max="32767" attributes="0"/>
+                      <Component id="numModeloTxt" alignment="0" max="32767" attributes="0"/>
+                      <Component id="capacidadTxt" alignment="0" max="32767" attributes="0"/>
+                      <Component id="pesoTxt" alignment="0" pref="163" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace pref="131" max="32767" attributes="0"/>
+                  <Component id="jLabel1" min="-2" pref="237" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -75,15 +75,15 @@
                   <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="numModeloBtn" min="-2" max="-2" attributes="0"/>
+                  <Component id="numModeloTxt" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="capacidadBtn" min="-2" max="-2" attributes="0"/>
+                  <Component id="capacidadTxt" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="pesoBtn" min="-2" max="-2" attributes="0"/>
+                  <Component id="pesoTxt" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="81" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -115,7 +115,10 @@
             <Property name="text" type="java.lang.String" value="Numero de modelo"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="numModeloBtn">
+        <Component class="javax.swing.JTextField" name="numModeloTxt">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="numModeloTxtActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>
@@ -128,7 +131,10 @@
             <Property name="text" type="java.lang.String" value="Capacidad"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="capacidadBtn">
+        <Component class="javax.swing.JTextField" name="capacidadTxt">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="capacidadTxtActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
@@ -141,7 +147,10 @@
             <Property name="text" type="java.lang.String" value="Peso"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JTextField" name="pesoBtn">
+        <Component class="javax.swing.JTextField" name="pesoTxt">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pesoTxtActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -196,6 +205,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Agregar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="agregarBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="vaciarBtn">
           <Properties>
@@ -210,6 +222,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Vaciar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="vaciarBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="regresarBtn">
           <Properties>

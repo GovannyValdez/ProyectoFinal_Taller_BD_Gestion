@@ -4,19 +4,86 @@
  */
 package com.mycompany.mavenproject1;
 
-/**
- *
- * @author govan
- */
+import DB2_Conexion.Conexion_DB;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public class AgregarModelo extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AgregarModelo.class.getName());
 
-    /**
-     * Creates new form AgregarModelo
-     */
     public AgregarModelo() {
         initComponents();
+    }
+
+    // ========== MÉTODO PARA INSERTAR EN BASE DE DATOS ==========
+    private boolean insertarModeloDB(String modelo, int capacidad, double peso) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            // Usar tu Singleton de conexión
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Error: No hay conexión a la base de datos",
+                    "Error de conexión",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            
+            // Consulta SQL para insertar
+            String sql = "INSERT INTO ModelosAvion (ModelNumber, Capacidad, Peso) VALUES (?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+            
+            // Asignar valores a los parámetros
+            pstmt.setString(1, modelo.toUpperCase());  // Convertir a mayúsculas
+            pstmt.setInt(2, capacidad);
+            pstmt.setDouble(3, peso);
+            
+            // Ejecutar la inserción
+            int resultado = pstmt.executeUpdate();
+            
+            return resultado > 0;
+            
+        } catch (SQLException e) {
+            // Manejo de errores específicos de DB2
+            if (e.getErrorCode() == -803) { // Violación de clave primaria
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Ya existe un modelo con el número: " + modelo,
+                    "Error de duplicado",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            } else if (e.getErrorCode() == -545) { // Violación de CHECK constraint
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Los datos no cumplen con las restricciones de validación",
+                    "Error de validación DB2",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Error de base de datos: " + e.getMessage(),
+                    "Error DB2",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+            logger.severe("Error SQL: " + e.toString());
+            return false;
+            
+        } finally {
+            // Cerrar recursos
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                logger.warning("Error al cerrar PreparedStatement: " + e.toString());
+            }
+        }
+    }
+    
+    private void vaciarCampos() {
+        numModeloTxt.setText("");
+        capacidadTxt.setText("");
+        pesoTxt.setText("");
+        numModeloTxt.requestFocus(); // Poner foco en el primer campo
     }
 
     /**
@@ -31,11 +98,11 @@ public class AgregarModelo extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        numModeloBtn = new javax.swing.JTextField();
+        numModeloTxt = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        capacidadBtn = new javax.swing.JTextField();
+        capacidadTxt = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        pesoBtn = new javax.swing.JTextField();
+        pesoTxt = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         agregarBtn = new javax.swing.JButton();
         vaciarBtn = new javax.swing.JButton();
@@ -54,32 +121,50 @@ public class AgregarModelo extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Numero de modelo");
 
+        numModeloTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numModeloTxtActionPerformed(evt);
+            }
+        });
+
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Capacidad");
+
+        capacidadTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                capacidadTxtActionPerformed(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(0, 0, 0));
         jLabel4.setText("Peso");
 
+        pesoTxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pesoTxtActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(121, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(66, 66, 66)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel4)
                     .addComponent(jLabel3)
                     .addComponent(jLabel2)
-                    .addComponent(numModeloBtn)
-                    .addComponent(capacidadBtn)
-                    .addComponent(pesoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
+                    .addComponent(numModeloTxt)
+                    .addComponent(capacidadTxt)
+                    .addComponent(pesoTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(131, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -89,15 +174,15 @@ public class AgregarModelo extends javax.swing.JFrame {
                 .addGap(41, 41, 41)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
-                .addComponent(numModeloBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(numModeloTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
-                .addComponent(capacidadBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(capacidadTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
-                .addComponent(pesoBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pesoTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(81, Short.MAX_VALUE))
         );
 
@@ -107,11 +192,21 @@ public class AgregarModelo extends javax.swing.JFrame {
         agregarBtn.setForeground(new java.awt.Color(255, 255, 255));
         agregarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-agregar-24 (1).png")); // NOI18N
         agregarBtn.setText("Agregar");
+        agregarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                agregarBtnActionPerformed(evt);
+            }
+        });
 
         vaciarBtn.setBackground(new java.awt.Color(0, 153, 153));
         vaciarBtn.setForeground(new java.awt.Color(0, 0, 0));
         vaciarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-limpiar-24.png")); // NOI18N
         vaciarBtn.setText("Vaciar");
+        vaciarBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vaciarBtnActionPerformed(evt);
+            }
+        });
 
         regresarBtn.setIcon(new javax.swing.ImageIcon("C:\\Users\\govan\\OneDrive\\Documentos\\1-Repositorio_Taller_BD\\Proyecto_Final_Taller_BD\\BD_Aeropuerto_Escritorio\\src\\main\\java\\Imagenes_Diseño\\icons8-volver-24.png")); // NOI18N
         regresarBtn.setText("Regresar");
@@ -173,6 +268,122 @@ public class AgregarModelo extends javax.swing.JFrame {
     this.dispose();
     }//GEN-LAST:event_regresarBtnActionPerformed
 
+    
+    
+    private void agregarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_agregarBtnActionPerformed
+        // TODO add your handling code here:
+         try {
+            // SACAR INFORMACIÓN DE LOS TEXT FIELDS
+            String numeroModelo = numModeloTxt.getText().trim();
+            String capacidadText = capacidadTxt.getText().trim();
+            String pesoText = pesoTxt.getText().trim();
+            
+            // Validar campos vacíos
+            if (numeroModelo.isEmpty() || capacidadText.isEmpty() || pesoText.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Todos los campos son requeridos",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Validar número de modelo (mínimo 2 caracteres, solo letras/números/guiones)
+            if (numeroModelo.length() < 2) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Número de modelo debe tener al menos 2 caracteres",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (!numeroModelo.matches("^[A-Za-z0-9-]+$")) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Número de modelo solo puede contener letras, números y guiones",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Convertir y validar capacidad (1-1000)
+            int capacidad;
+            try {
+                capacidad = Integer.parseInt(capacidadText);
+                if (capacidad < 1 || capacidad > 1000) {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                        "❌ Capacidad debe estar entre 1 y 1000",
+                        "Error de validación",
+                        javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Capacidad debe ser un número entero válido",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Convertir y validar peso (500-1,000,000)
+            double peso;
+            try {
+                peso = Double.parseDouble(pesoText);
+                if (peso < 500 || peso > 1000000) {
+                    javax.swing.JOptionPane.showMessageDialog(this,
+                        "❌ Peso debe estar entre 500 y 1,000,000",
+                        "Error de validación",
+                        javax.swing.JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Peso debe ser un número decimal válido",
+                    "Error de validación",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Insertar en la base de datos
+            boolean exito = insertarModeloDB(numeroModelo, capacidad, peso);
+            
+            if (exito) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "✅ Modelo de avión agregado exitosamente",
+                    "Éxito",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                
+                // Limpiar campos después de agregar
+                vaciarCampos();
+            }
+            
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                "❌ Error inesperado: " + e.getMessage(),
+                "Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            logger.severe("Error al agregar modelo: " + e.toString());
+        }
+    }//GEN-LAST:event_agregarBtnActionPerformed
+
+    private void vaciarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarBtnActionPerformed
+        // TODO add your handling code here:
+        vaciarCampos();
+    }//GEN-LAST:event_vaciarBtnActionPerformed
+
+    private void numModeloTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numModeloTxtActionPerformed
+        // TODO add your handling code here:
+        capacidadTxt.requestFocus();
+    }//GEN-LAST:event_numModeloTxtActionPerformed
+
+    private void capacidadTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_capacidadTxtActionPerformed
+        // TODO add your handling code here:
+         pesoTxt.requestFocus();
+    }//GEN-LAST:event_capacidadTxtActionPerformed
+
+    private void pesoTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pesoTxtActionPerformed
+        // TODO add your handling code here:
+         agregarBtn.doClick();
+    }//GEN-LAST:event_pesoTxtActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -200,15 +411,15 @@ public class AgregarModelo extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton agregarBtn;
-    private javax.swing.JTextField capacidadBtn;
+    private javax.swing.JTextField capacidadTxt;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField numModeloBtn;
-    private javax.swing.JTextField pesoBtn;
+    private javax.swing.JTextField numModeloTxt;
+    private javax.swing.JTextField pesoTxt;
     private javax.swing.JButton regresarBtn;
     private javax.swing.JButton vaciarBtn;
     // End of variables declaration//GEN-END:variables
