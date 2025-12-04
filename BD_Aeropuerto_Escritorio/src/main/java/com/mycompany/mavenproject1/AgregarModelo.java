@@ -378,7 +378,16 @@ public class AgregarModelo extends javax.swing.JFrame {
 
     private void pesoTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pesoTxtActionPerformed
         // TODO add your handling code here:
-         agregarBtn.doClick();
+         //agregarBtn.requestFocus();
+         // Ejecutar el botón Agregar en un hilo separado
+    new Thread(() -> {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            agregarBtnActionPerformed(evt);
+        });
+    }).start();
+         
+         
+         
     }//GEN-LAST:event_pesoTxtActionPerformed
 
     /**

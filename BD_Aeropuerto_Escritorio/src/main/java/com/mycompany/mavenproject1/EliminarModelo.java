@@ -4,6 +4,7 @@
  */
 
 package com.mycompany.mavenproject1;
+
 import DB2_Conexion.Conexion_DB;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,14 +18,266 @@ public class EliminarModelo extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(EliminarModelo.class.getName());
     private javax.swing.Timer timerBusqueda;
-    private String modeloSeleccionado = ""; // Guardar el modelo seleccionado
+    private String modeloSeleccionado = ""; 
 
     public EliminarModelo() {
         initComponents();
-        //configurarTabla();
-        //configurarBusquedaAutomatica();
+        configurarTabla();
+        configurarBusquedaAutomatica();
+            setLocationRelativeTo(null);
+
     }
 
+   
+    private void configurarTabla() {
+        DefaultTableModel modeloTabla = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        modeloTabla.addColumn("Número de Modelo");
+        modeloTabla.addColumn("Capacidad");
+        modeloTabla.addColumn("Peso");
+        
+        jTable1.setModel(modeloTabla);
+        
+        jTable1.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && jTable1.getSelectedRow() != -1) {
+                int filaSeleccionada = jTable1.getSelectedRow();
+                modeloSeleccionado = jTable1.getValueAt(filaSeleccionada, 0).toString();
+                buscarModeloTxt.setText(modeloSeleccionado);
+            }
+        });
+    }
+
+    
+    private void mostrarErrorConexion() {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ Error: No hay conexión a la base de datos",
+            "Error de conexión",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private void manejarErrorSQL(SQLException e, String operacion) {
+        String mensaje = "❌ Error al " + operacion + " modelo: ";
+        
+        if (e.getErrorCode() == -803) { // Violación de integridad referencial
+            mensaje += "No se puede eliminar porque está siendo usado en otras tablas";
+        } else {
+            mensaje += e.getMessage();
+        }
+        
+        javax.swing.JOptionPane.showMessageDialog(this,
+            mensaje,
+            "Error DB2",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        
+        logger.severe("Error SQL en " + operacion + ": " + e.toString());
+    }
+    
+    private void cerrarRecursos(ResultSet rs, PreparedStatement pstmt) {
+        try {
+            if (rs != null) rs.close();
+            if (pstmt != null) pstmt.close();
+        } catch (SQLException e) {
+            logger.warning("Error al cerrar recursos: " + e.toString());
+        }
+    }
+    
+    
+    
+    private void configurarBusquedaAutomatica() {
+        timerBusqueda = new javax.swing.Timer(300, e -> {
+            buscarAutomaticamente();
+        });
+        timerBusqueda.setRepeats(false);
+        
+        buscarModeloTxt.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+                modeloSeleccionado = ""; 
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+                modeloSeleccionado = ""; 
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                iniciarBusquedaAutomatica();
+            }
+            
+            private void iniciarBusquedaAutomatica() {
+                if (timerBusqueda.isRunning()) {
+                    timerBusqueda.restart();
+                } else {
+                    timerBusqueda.start();
+                }
+            }
+        });
+    }
+
+    private void buscarAutomaticamente() {
+        String textoBusqueda = buscarModeloTxt.getText().trim();
+        
+        if (textoBusqueda.isEmpty()) {
+            limpiarTabla();
+            return;
+        }
+        
+        if (textoBusqueda.length() < 2) {
+            return;
+        }
+        
+        buscarEnDB(textoBusqueda);
+    }
+    
+     private void eliminarModeloDB(String numeroModelo) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                mostrarErrorConexion();
+                return;
+            }
+            
+            if (!verificarExistenciaModelo(numeroModelo)) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ El modelo " + numeroModelo + " no existe",
+                    "Modelo no encontrado",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            String sql = "DELETE FROM ModelosAvion WHERE ModelNumber = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, numeroModelo);
+            
+            int filasEliminadas = pstmt.executeUpdate();
+            
+            if (filasEliminadas > 0) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "✅ Modelo " + numeroModelo + " eliminado exitosamente",
+                    "Eliminación exitosa",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+                
+                vaciarCampos();
+                modeloSeleccionado = "";
+                
+                if (!buscarModeloTxt.getText().trim().isEmpty()) {
+                    buscarAutomaticamente();
+                }
+            }
+            
+        } catch (SQLException e) {
+            manejarErrorSQL(e, "eliminar");
+        } finally {
+            cerrarRecursos(null, pstmt);
+        }
+     }
+     
+     
+        
+        private boolean verificarExistenciaModelo(String numeroModelo) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                return false;
+            }
+            
+            String sql = "SELECT 1 FROM ModelosAvion WHERE ModelNumber = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, numeroModelo);
+            
+            rs = pstmt.executeQuery();
+            return rs.next();
+            
+        } catch (SQLException e) {
+            logger.severe("Error al verificar existencia: " + e.toString());
+            return false;
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+        
+    private void buscarEnDB(String textoBusqueda) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion_DB.getInstance().getConnection();
+            
+            if (conn == null) {
+                mostrarErrorConexion();
+                return;
+            }
+            
+            String sql = "SELECT ModelNumber, Capacidad, Peso FROM ModelosAvion WHERE UPPER(ModelNumber) LIKE ? ORDER BY ModelNumber";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, "%" + textoBusqueda.toUpperCase() + "%");
+            
+            rs = pstmt.executeQuery();
+            
+            actualizarTablaConResultados(rs);
+            
+        } catch (SQLException e) {
+            manejarErrorSQL(e, "buscar");
+        } finally {
+            cerrarRecursos(rs, pstmt);
+        }
+    }
+
+     private void actualizarTablaConResultados(ResultSet rs) throws SQLException {
+        DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
+        modeloTabla.setRowCount(0);
+        
+        int contador = 0;
+        while (rs.next()) {
+            String modelo = rs.getString("ModelNumber");
+            int capacidad = rs.getInt("Capacidad");
+            double peso = rs.getDouble("Peso");
+            
+            Object[] fila = {modelo, capacidad, peso};
+            modeloTabla.addRow(fila);
+            contador++;
+        }
+        
+        if (contador == 1) {
+            jTable1.setRowSelectionInterval(0, 0);
+        }
+    }
+        
+    private void vaciarCampos() {
+        buscarModeloTxt.setText("");
+        limpiarTabla();
+        modeloSeleccionado = "";
+        buscarModeloTxt.requestFocus();
+        
+        if (timerBusqueda != null && timerBusqueda.isRunning()) {
+            timerBusqueda.stop();
+        }
+    }
+    
+    private void limpiarTabla() {
+        DefaultTableModel modeloTabla = (DefaultTableModel) jTable1.getModel();
+        modeloTabla.setRowCount(0);
+        jTable1.clearSelection();
+    }
+     
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -167,16 +420,66 @@ public class EliminarModelo extends javax.swing.JFrame {
 
     private void buscarModeloTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarModeloTxtActionPerformed
         // TODO add your handling code here:
+        buscarAutomaticamente();
     }//GEN-LAST:event_buscarModeloTxtActionPerformed
 
     private void vaciarBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vaciarBtnActionPerformed
         // TODO add your handling code here:
+         vaciarCampos();
     }//GEN-LAST:event_vaciarBtnActionPerformed
 
     private void eliminarModeloBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarModeloBtnActionPerformed
         // TODO add your handling code here:
+        if (modeloSeleccionado.isEmpty()) {
+            modeloSeleccionado = buscarModeloTxt.getText().trim().toUpperCase();
+            
+            if (modeloSeleccionado.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                    "❌ Por favor ingrese o seleccione un modelo para eliminar",
+                    "Sin selección",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de eliminar el modelo: " + modeloSeleccionado + "?",
+            "Confirmar eliminación",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+        
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            eliminarModeloDB(modeloSeleccionado);
+        }
     }//GEN-LAST:event_eliminarModeloBtnActionPerformed
 
+    private void configurarEliminarPorDobleClic() {
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) { 
+                    int fila = jTable1.getSelectedRow();
+                    if (fila != -1) {
+                        String modelo = jTable1.getValueAt(fila, 0).toString();
+                        
+                        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(
+                            EliminarModelo.this,
+                            "¿Eliminar modelo " + modelo + "?",
+                            "Confirmar eliminación",
+                            javax.swing.JOptionPane.YES_NO_OPTION
+                        );
+                        
+                        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+                            eliminarModeloDB(modelo);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    
+    
     /**
      * @param args the command line arguments
      */
