@@ -32,25 +32,27 @@ public class EliminarModelo extends javax.swing.JFrame {
    
     private void configurarTabla() {
         DefaultTableModel modeloTabla = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        
-        modeloTabla.addColumn("Número de Modelo");
-        modeloTabla.addColumn("Capacidad");
-        modeloTabla.addColumn("Peso");
-        
-        jTable1.setModel(modeloTabla);
-        
-        jTable1.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && jTable1.getSelectedRow() != -1) {
-                int filaSeleccionada = jTable1.getSelectedRow();
-                modeloSeleccionado = jTable1.getValueAt(filaSeleccionada, 0).toString();
-                buscarModeloTxt.setText(modeloSeleccionado);
-            }
-        });
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    
+    modeloTabla.addColumn("Número de Modelo");
+    modeloTabla.addColumn("Capacidad");
+    modeloTabla.addColumn("Peso");
+    
+    jTable1.setModel(modeloTabla);
+    
+    jTable1.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting() && jTable1.getSelectedRow() != -1) {
+            int filaSeleccionada = jTable1.getSelectedRow();
+            modeloSeleccionado = jTable1.getValueAt(filaSeleccionada, 0).toString();
+            buscarModeloTxt.setText(modeloSeleccionado);
+            
+            System.out.println("DEBUG: Tabla - Modelo seleccionado: " + modeloSeleccionado);
+        }
+    });
     }
 
     
@@ -473,27 +475,50 @@ public class EliminarModelo extends javax.swing.JFrame {
 
     private void eliminarModeloBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarModeloBtnActionPerformed
         // TODO add your handling code here:
-         if (modeloSeleccionado.isEmpty()) {
-            modeloSeleccionado = buscarModeloTxt.getText().trim();
-            
-            if (modeloSeleccionado.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this,
-                    "❌ Por favor ingrese o seleccione un modelo para eliminar",
-                    "Sin selección",
-                    javax.swing.JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        }
         
-        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
-            "¿Está seguro de eliminar el modelo: " + modeloSeleccionado + "?",
-            "Confirmar eliminación",
-            javax.swing.JOptionPane.YES_NO_OPTION,
+    String modeloAEliminar = "";
+    
+    if (jTable1.getSelectedRow() != -1) {
+        int filaSeleccionada = jTable1.getSelectedRow();
+        modeloAEliminar = jTable1.getValueAt(filaSeleccionada, 0).toString();
+        System.out.println("DEBUG: Usando modelo seleccionado en tabla: " + modeloAEliminar);
+    }
+    else if (!buscarModeloTxt.getText().trim().isEmpty()) {
+        modeloAEliminar = buscarModeloTxt.getText().trim();
+        System.out.println("DEBUG: Usando modelo del campo de texto: " + modeloAEliminar);
+    }
+    else if (!modeloSeleccionado.isEmpty()) {
+        modeloAEliminar = modeloSeleccionado;
+        System.out.println("DEBUG: Usando modeloSeleccionado variable: " + modeloAEliminar);
+    }
+    else {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ Por favor:\n" +
+            "1. Seleccione un modelo de la tabla\n" +
+            "2. O escriba un número de modelo en el campo de búsqueda",
+            "Sin selección",
             javax.swing.JOptionPane.WARNING_MESSAGE);
-        
-        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
-            eliminarModeloDB(modeloSeleccionado);
-        }
+        return;
+    }
+    
+    // Verificar que no esté vacío
+    if (modeloAEliminar.trim().isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "❌ El modelo a eliminar está vacío",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
+        "¿Está seguro de eliminar el modelo: " + modeloAEliminar + "?",
+        "Confirmar eliminación",
+        javax.swing.JOptionPane.YES_NO_OPTION,
+        javax.swing.JOptionPane.WARNING_MESSAGE);
+    
+    if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+        eliminarModeloDB(modeloAEliminar);
+    }
     }//GEN-LAST:event_eliminarModeloBtnActionPerformed
 
     private void mostratTodoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mostratTodoBtnActionPerformed
@@ -503,7 +528,7 @@ public class EliminarModelo extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        MenuModelos menu = new MenuModelos();  
+        MenuModelos menu = new MenuModelos();   
        
     menu.setVisible(true);                
 

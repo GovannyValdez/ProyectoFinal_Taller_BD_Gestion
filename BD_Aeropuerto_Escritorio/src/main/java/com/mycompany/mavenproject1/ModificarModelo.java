@@ -52,12 +52,15 @@ public class ModificarModelo extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Modificar modelo");
 
+        jLabel2.setFont(new java.awt.Font("Yu Gothic UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Numero de modelo");
 
+        jLabel3.setFont(new java.awt.Font("Yu Gothic UI", 1, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Capacidad");
 
+        jLabel4.setFont(new java.awt.Font("Yu Gothic", 1, 12)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Peso");
 
