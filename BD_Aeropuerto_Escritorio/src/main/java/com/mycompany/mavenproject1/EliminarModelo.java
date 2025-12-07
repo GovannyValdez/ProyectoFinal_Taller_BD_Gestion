@@ -332,6 +332,7 @@ public class EliminarModelo extends javax.swing.JFrame {
             }
         });
 
+        vaciarBtn.setForeground(new java.awt.Color(0, 0, 0));
         vaciarBtn.setText("Vaciar");
         vaciarBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
