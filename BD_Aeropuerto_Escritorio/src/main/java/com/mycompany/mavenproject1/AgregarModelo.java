@@ -50,8 +50,7 @@ public class AgregarModelo extends javax.swing.JFrame {
             return resultado > 0;
             
         } catch (SQLException e) {
-            // Manejo de errores específicos de DB2
-            if (e.getErrorCode() == -803) { // Violación de clave primaria
+            if (e.getErrorCode() == -803) {
                 javax.swing.JOptionPane.showMessageDialog(this,
                     "❌ Ya existe un modelo con el número: " + modelo,
                     "Error de duplicado",
@@ -84,7 +83,7 @@ public class AgregarModelo extends javax.swing.JFrame {
         numModeloTxt.setText("");
         capacidadTxt.setText("");
         pesoTxt.setText("");
-        numModeloTxt.requestFocus(); // Poner foco en el primer campo
+        numModeloTxt.requestFocus(); 
     }
 
     /**

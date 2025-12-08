@@ -3,6 +3,7 @@ com\mycompany\mavenproject1\ModificarModelo$2.class
 com\mycompany\mavenproject1\AgregarEmpleado$6.class
 com\mycompany\mavenproject1\InicioSesion$1.class
 com\mycompany\mavenproject1\ModificarEmpleado$3.class
+com\mycompany\mavenproject1\MenuEmpleados$9.class
 DB2_Conexion\Conexion_DB.class
 com\mycompany\mavenproject1\AgregarModelo$1.class
 com\mycompany\mavenproject1\MenuModelos$3.class
@@ -14,6 +15,7 @@ com\mycompany\mavenproject1\EliminarModelo$1.class
 com\mycompany\mavenproject1\ModificarModelo$8.class
 com\mycompany\mavenproject1\EliminarModelo$6.class
 com\mycompany\mavenproject1\AgregarModelo$4.class
+com\mycompany\mavenproject1\MenuEmpleados$10.class
 com\mycompany\mavenproject1\ConsultarEmpleado$9.class
 com\mycompany\mavenproject1\ConsultarEmpleado$6.class
 com\mycompany\mavenproject1\ConsultarModelo$6.class
@@ -55,6 +57,7 @@ com\mycompany\mavenproject1\ConsultarEmpleado$8.class
 com\mycompany\mavenproject1\MenuModelos$1.class
 com\mycompany\mavenproject1\ModificarEmpleado$12.class
 com\mycompany\mavenproject1\EliminarEmpleado$4.class
+com\mycompany\mavenproject1\VistaEmpleados.class
 com\mycompany\mavenproject1\ConsultarEmpleado$5.class
 com\mycompany\mavenproject1\AgregarModelo$5.class
 com\mycompany\mavenproject1\ConsultarModelo.class
@@ -84,6 +87,7 @@ com\mycompany\mavenproject1\ModificarModelo$7.class
 com\mycompany\mavenproject1\MenuEmpleados$1.class
 com\mycompany\mavenproject1\EliminarModelo$3.class
 com\mycompany\mavenproject1\ConsultarModelo$4.class
+com\mycompany\mavenproject1\MenuEmpleados$8.class
 com\mycompany\mavenproject1\EliminarEmpleado$6.class
 com\mycompany\mavenproject1\AgregarEmpleado$5.class
 com\mycompany\mavenproject1\MenuModelos$5.class
@@ -97,10 +101,10 @@ com\mycompany\mavenproject1\EliminarEmpleado$5.class
 com\mycompany\mavenproject1\ModificarModelo$6.class
 com\mycompany\mavenproject1\ModificarEmpleado$2.class
 com\mycompany\mavenproject1\ConsultarModelo$5.class
+com\mycompany\mavenproject1\MenuEmpleados$7.class
 com\mycompany\mavenproject1\AgregarEmpleado.class
 com\mycompany\mavenproject1\EliminarEmpleado$10.class
 com\mycompany\mavenproject1\EliminarModelo$2.class
-DB2_Conexion\PruebaConexion.class
 com\mycompany\mavenproject1\ModificarEmpleado$9.class
 com\mycompany\mavenproject1\ModificarEmpleado$14.class
 com\mycompany\mavenproject1\AgregarModelo$3.class

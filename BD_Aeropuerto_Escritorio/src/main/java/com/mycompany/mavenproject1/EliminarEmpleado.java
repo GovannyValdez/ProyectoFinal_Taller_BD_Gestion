@@ -77,7 +77,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
         if ((ssn != null && !ssn.isEmpty()) || (nombre != null && !nombre.isEmpty())) {
             filtrarEnMemoria(ssn, nombre);
         } else {
-            // Cuando ambos campos están vacíos, QUITAR el filtro
             if (sorter != null) {
                 sorter.setRowFilter(null);
             }
@@ -165,7 +164,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
             boolean mostrar = true;
             
             try {
-                // Filtrar por SSN
                 if (ssnFiltro != null && !ssnFiltro.trim().isEmpty()) {
                     String ssn = (String) entry.getValue(0);
                     String filtroSSN = ssnFiltro.toLowerCase().trim();
@@ -610,8 +608,6 @@ public class EliminarEmpleado extends javax.swing.JFrame {
     this.dispose();
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    
-    
     
     
     

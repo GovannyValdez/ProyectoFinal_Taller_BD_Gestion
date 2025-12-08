@@ -16,7 +16,6 @@ public class Conexion_DB {
     private static Conexion_DB instance;
     private Connection connection;
     
-    // Configuración en variables separadas para mayor flexibilidad
     private static final String HOST = "localhost";
     private static final String PORT = "25000";
     private static final String DATABASE = "BD_AEROP";
@@ -25,25 +24,20 @@ public class Conexion_DB {
     private static final String PASS = "Govanny27";
     private static final String DRIVER = "com.ibm.db2.jcc.DB2Driver";
     
-    // Constructor privado para Singleton
     private Conexion_DB() {
         conectar();
     }
     
     
     
-    // Método de conexión separado para reutilizar
     private void conectar() {
         try {
-            // 1. Cargar driver
             Class.forName(DRIVER);
             System.out.println("✔ Driver DB2 cargado correctamente");
             
-            // 2. Establecer conexión con timeout
             DriverManager.setLoginTimeout(10); // 10 segundos timeout
             connection = DriverManager.getConnection(URL, USER, PASS);
             
-            // 3. Configurar conexión
             connection.setAutoCommit(true);
             connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             
@@ -73,7 +67,6 @@ public class Conexion_DB {
         }
     }
     
-    // Método Singleton para obtener instancia
     public static synchronized Conexion_DB getInstance() {
         if (instance == null) {
             instance = new Conexion_DB();
@@ -83,7 +76,6 @@ public class Conexion_DB {
         return instance;
     }
     
-    // Obtener conexión
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
@@ -96,12 +88,11 @@ public class Conexion_DB {
         return this.connection;
     }
     
-    // Verificar conexión válida
     public boolean isConnectionValid() {
         try {
             return connection != null 
                 && !connection.isClosed() 
-                && connection.isValid(5); // 5 segundos timeout
+                && connection.isValid(5); 
         } catch (SQLException e) {
             return false;
         }
@@ -110,7 +101,7 @@ public class Conexion_DB {
     // Reconectar
     public void reconectar() {
         System.out.println("🔄 Intentando reconectar...");
-        closeConnection(); // Cerrar conexión anterior si existe
+        closeConnection(); 
         conectar();
     }
     
@@ -126,23 +117,18 @@ public class Conexion_DB {
         }
     }
     
-    // Método para mostrar errores en interfaz gráfica
     private void mostrarError(String titulo, String mensaje) {
-        // Si estás en entorno gráfico
         try {
             JOptionPane.showMessageDialog(null, mensaje, titulo, JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            // Si no hay entorno gráfico disponible
             System.err.println(titulo + ": " + mensaje);
         }
     }
     
-    // Métodos para obtener información de configuración
     public String getDatabaseInfo() {
         return "DB2 - " + DATABASE + " en " + HOST + ":" + PORT;
     }
     
-    // Test rápido de conexión
     public static boolean testConnection() {
         try {
             Conexion_DB conexion = getInstance();
