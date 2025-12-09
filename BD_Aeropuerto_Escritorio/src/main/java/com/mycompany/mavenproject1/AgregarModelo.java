@@ -110,7 +110,7 @@ public class AgregarModelo extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel1.setBackground(new java.awt.Color(0, 0, 153));
 
         jLabel1.setBackground(new java.awt.Color(0, 0, 0));
         jLabel1.setFont(new java.awt.Font("Yu Gothic UI", 1, 24)); // NOI18N
