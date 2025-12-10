@@ -19,10 +19,13 @@ public class VistaEmpleados extends javax.swing.JFrame {
 
     public VistaEmpleados() {
         initComponents();
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
         configurarTabla();
-        // Cargar automáticamente al abrir la ventana
         cargarVistaSalarioAlto();
         setLocationRelativeTo(null);
+        jScrollPane1.setViewportView(jTable1);
+
     }
     
     private void configurarTabla() {
@@ -33,7 +36,6 @@ public class VistaEmpleados extends javax.swing.JFrame {
             }
         };
         
-        // Configurar columnas según la vista
         modeloTabla.addColumn("SSN");
         modeloTabla.addColumn("Nombre");
         modeloTabla.addColumn("Apellido Paterno");
@@ -84,7 +86,6 @@ public class VistaEmpleados extends javax.swing.JFrame {
                 sumaSalarios += salario;
             }
             
-            // Actualizar el JLabel con la información
             if (contador > 0) {
                 double promedio = sumaSalarios / contador;
                 jLabel2.setText(String.format("Salario mayor al promedio: %d empleados | Promedio: $%.2f", 
@@ -135,7 +136,6 @@ public class VistaEmpleados extends javax.swing.JFrame {
                 contador++;
             }
             
-            // Actualizar JLabel silenciosamente
             if (contador > 0) {
                 jLabel2.setText("Empleados con salario alto: " + contador);
             }
@@ -155,7 +155,6 @@ public class VistaEmpleados extends javax.swing.JFrame {
     }
     
     private void manejarErrorSQL(SQLException e) {
-        // Verificar si es error porque la vista no existe
         String mensajeError = e.getMessage().toLowerCase();
         if (mensajeError.contains("vista_empleados_salario_alto") || 
             mensajeError.contains("table/view") || 
@@ -190,8 +189,7 @@ public class VistaEmpleados extends javax.swing.JFrame {
     }
     
     private void cerrarConexion() {
-        // En tu patrón, la conexión se maneja a través del Singleton
-        // Solo cerramos recursos específicos, no la conexión principal
+       
         System.out.println("Recursos de vista cerrados");
     }
     
@@ -369,7 +367,6 @@ public class VistaEmpleados extends javax.swing.JFrame {
 
     private void btnActualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarActionPerformed
         // TODO add your handling code here:
-        // Actualizar los datos
          cargarVistaSalarioAlto();
         javax.swing.JOptionPane.showMessageDialog(this, 
             "Datos actualizados correctamente", 
@@ -381,27 +378,7 @@ public class VistaEmpleados extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new VistaEmpleados().setVisible(true));
-    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnActualizar;
