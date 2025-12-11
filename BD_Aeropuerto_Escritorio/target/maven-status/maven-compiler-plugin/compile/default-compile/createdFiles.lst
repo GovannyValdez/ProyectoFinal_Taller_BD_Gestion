@@ -22,6 +22,7 @@ com\mycompany\mavenproject1\AgregarModelo$4.class
 com\mycompany\mavenproject1\VistaModelos$2.class
 com\mycompany\mavenproject1\ConsultarEmpleado$9.class
 com\mycompany\mavenproject1\ConsultarEmpleado$6.class
+com\mycompany\mavenproject1\InicioSesion$4.class
 com\mycompany\mavenproject1\MenuModelos$6.class
 com\mycompany\mavenproject1\FuncionEmpleados$3.class
 com\mycompany\mavenproject1\VistaEmpleados$2.class
@@ -119,6 +120,7 @@ com\mycompany\mavenproject1\FuncionModelos$4.class
 com\mycompany\mavenproject1\MenuEmpleados$1.class
 com\mycompany\mavenproject1\EliminarModelo$3.class
 com\mycompany\mavenproject1\ConsultarModelo$4.class
+com\mycompany\mavenproject1\InicioSesion$4$1.class
 com\mycompany\mavenproject1\MenuEmpleados$8.class
 com\mycompany\mavenproject1\EliminarEmpleado$6.class
 com\mycompany\mavenproject1\TransaccionEmpleado$3.class

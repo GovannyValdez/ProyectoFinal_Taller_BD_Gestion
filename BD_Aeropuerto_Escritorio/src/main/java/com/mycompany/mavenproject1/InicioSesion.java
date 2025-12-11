@@ -4,6 +4,7 @@
  */
 package com.mycompany.mavenproject1;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -139,60 +140,86 @@ public class InicioSesion extends javax.swing.JFrame {
 
     private void validarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validarUsuarioActionPerformed
         // TODO add your handling code here:
+                validarContraseña.requestFocus();
+
     }//GEN-LAST:event_validarUsuarioActionPerformed
 
     private void iniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iniciarSesionActionPerformed
         // TODO add your handling code here:
+        iniciarSesion.setEnabled(false);
+        iniciarSesion.setText("Validando...");
         
-        iniciarSesion();
+        Thread hiloValidacion = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(800); 
+                } catch (InterruptedException e) {
+                    logger.warning("Hilo interrumpido: " + e.getMessage());
+                }
+                
+                // Ejecutar validación en el hilo de eventos de Swing
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        validarCredenciales();
+                        // Restaurar estado del botón
+                        iniciarSesion.setEnabled(true);
+                        iniciarSesion.setText("Iniciar sesión");
+                    }
+                });
+            }
+        });
+        
+        hiloValidacion.start();
     }//GEN-LAST:event_iniciarSesionActionPerformed
 
-    private void iniciarSesion() {
-    String usuario = validarUsuario.getText().trim();
-    String contraseña = new String(validarContraseña.getPassword());
+    private void validarCredenciales() {
+        String usuario = validarUsuario.getText().trim();
+        String contraseña = new String(validarContraseña.getPassword());
 
-    if (usuario.isEmpty() || contraseña.isEmpty()) {
-        JOptionPane.showMessageDialog(this,
-                "Por favor, complete todos los campos",
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-        return;
+        if (usuario.isEmpty() || contraseña.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Por favor, complete todos los campos",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (usuario.equals("govanny") && contraseña.equals("1234")) {
+            JOptionPane.showMessageDialog(this,
+                    "¡Login exitoso!\nBienvenido: " + usuario,
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            abrirMenuInicio();
+
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Usuario o contraseña incorrectos\n\n" +
+                    "Usuario correcto: govanny\n" +
+                    "Contraseña correcta: 1234",
+                    "Error de autenticación",
+                    JOptionPane.WARNING_MESSAGE);
+
+            validarContraseña.setText("");
+            validarUsuario.requestFocus();
+        }
     }
-
-    if (usuario.equals("govanny") && contraseña.equals("1234")) {
-        JOptionPane.showMessageDialog(this,
-                "¡Login exitoso!\nBienvenido: " + usuario,
-                "Éxito",
-                JOptionPane.INFORMATION_MESSAGE);
-
-        abrirMenuInicio();
-
-    } else {
-        JOptionPane.showMessageDialog(this,
-                "Usuario o contraseña incorrectos\n\n" +
-                "Usuario correcto: govanny\n" +
-                "Contraseña correcta: 1234",
-                "Error de autenticación",
-                JOptionPane.WARNING_MESSAGE);
-
-        validarContraseña.setText("");
-        validarUsuario.requestFocus();
-    }
-}
 
     private void abrirMenuInicio() {
-    MenuInicio menu = new MenuInicio();
-    menu.setLocationRelativeTo(null);
-    menu.setVisible(true);
-
-    this.dispose(); 
-}
+        MenuInicio menu = new MenuInicio();
+        menu.setLocationRelativeTo(null);
+        menu.setVisible(true);
+        this.dispose(); 
+    }
 
     
     
     private void validarContraseñaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validarContraseñaActionPerformed
         // TODO add your handling code here:
-        
+                iniciarSesionActionPerformed(evt);
+
         
     }//GEN-LAST:event_validarContraseñaActionPerformed
 
