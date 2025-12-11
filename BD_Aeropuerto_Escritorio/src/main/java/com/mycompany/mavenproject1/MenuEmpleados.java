@@ -306,6 +306,9 @@ public class MenuEmpleados extends javax.swing.JFrame {
 
     private void transaccionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transaccionBtnActionPerformed
         // TODO add your handling code here:
+        TransaccionEmpleado ventana = new TransaccionEmpleado();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
     }//GEN-LAST:event_transaccionBtnActionPerformed
 
     private void funcionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_funcionBtnActionPerformed
