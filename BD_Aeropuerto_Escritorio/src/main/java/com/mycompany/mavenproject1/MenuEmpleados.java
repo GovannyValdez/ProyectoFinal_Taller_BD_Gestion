@@ -54,7 +54,6 @@ public class MenuEmpleados extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         vistaBtn = new javax.swing.JButton();
         transaccionBtn = new javax.swing.JButton();
-        ProcedimientoBtn = new javax.swing.JButton();
         funcionBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -123,25 +122,16 @@ public class MenuEmpleados extends javax.swing.JFrame {
 
         transaccionBtn.setBackground(new java.awt.Color(204, 204, 204));
         transaccionBtn.setForeground(new java.awt.Color(0, 0, 0));
-        transaccionBtn.setText("Transaccion");
+        transaccionBtn.setText("Procedimientos");
         transaccionBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 transaccionBtnActionPerformed(evt);
             }
         });
 
-        ProcedimientoBtn.setBackground(new java.awt.Color(204, 204, 204));
-        ProcedimientoBtn.setForeground(new java.awt.Color(0, 0, 0));
-        ProcedimientoBtn.setText("Procedimiento");
-        ProcedimientoBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ProcedimientoBtnActionPerformed(evt);
-            }
-        });
-
         funcionBtn.setBackground(new java.awt.Color(204, 204, 204));
         funcionBtn.setForeground(new java.awt.Color(0, 0, 0));
-        funcionBtn.setText("Funcion");
+        funcionBtn.setText("Calcular aumento salarial");
         funcionBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 funcionBtnActionPerformed(evt);
@@ -153,21 +143,22 @@ public class MenuEmpleados extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(30, 30, 30)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(agregarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(modificarEmpleado1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(buscarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(eliminarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(vistaBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ProcedimientoBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(30, 30, 30)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(transaccionBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-                            .addComponent(funcionBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(agregarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(modificarEmpleado1, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(buscarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(eliminarEmpleado, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(vistaBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(transaccionBtn))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(77, 77, 77)
+                        .addComponent(funcionBtn)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
@@ -193,9 +184,7 @@ public class MenuEmpleados extends javax.swing.JFrame {
                     .addComponent(vistaBtn)
                     .addComponent(transaccionBtn))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ProcedimientoBtn)
-                    .addComponent(funcionBtn))
+                .addComponent(funcionBtn)
                 .addContainerGap(23, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(46, 46, 46)
@@ -300,10 +289,6 @@ public class MenuEmpleados extends javax.swing.JFrame {
         ventana.setVisible(true);
     }//GEN-LAST:event_vistaBtnActionPerformed
 
-    private void ProcedimientoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ProcedimientoBtnActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_ProcedimientoBtnActionPerformed
-
     private void transaccionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transaccionBtnActionPerformed
         // TODO add your handling code here:
         TransaccionEmpleado ventana = new TransaccionEmpleado();
@@ -313,6 +298,9 @@ public class MenuEmpleados extends javax.swing.JFrame {
 
     private void funcionBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_funcionBtnActionPerformed
         // TODO add your handling code here:
+        FuncionEmpleados ventana = new FuncionEmpleados();
+        ventana.setLocationRelativeTo(null);
+        ventana.setVisible(true);
     }//GEN-LAST:event_funcionBtnActionPerformed
 
     /**
@@ -321,7 +309,6 @@ public class MenuEmpleados extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton ProcedimientoBtn;
     private javax.swing.JButton agregarEmpleado;
     private javax.swing.JButton buscarEmpleado;
     private javax.swing.JButton eliminarEmpleado;
